@@ -35,6 +35,9 @@ export class Player {
     animationState: string;
     location: string;
 
+    lookSpeedX: number
+    lookSpeedY: number
+
     constructor({ FOV, aspect, near, far }: CameraConfig, location: string) {
         this.camera = new THREE.PerspectiveCamera(FOV, aspect, near, far);
         this.camera.name = "PlayerCam";
@@ -58,6 +61,7 @@ export class Player {
         this.animationState = "idle";
         this.location = location;
         this.initControls();
+        this.lookSpeedX = this.lookSpeedY = 1e-5;
     }
 
     setCameraPosition(position: THREE.Vector3) {
@@ -115,7 +119,7 @@ export class Player {
             }
         });
 
-        document.addEventListener("mousemove", (e) => {
+        document.addEventListener("pointermove", (e) => {
             if (this.motion.mousecapture) {
                 const normalisedX = (e.clientX - window.innerWidth / 2) * 2 - 1;
                 const normalisedY = -((e.clientY - window.innerHeight / 2) * 2 - 1);
@@ -123,6 +127,10 @@ export class Player {
                 this.motion.mouseNormalY = normalisedY;
             }
         });
+
+        document.addEventListener('touchstart', (_) => {
+            this.lookSpeedX = this.lookSpeedY = 3e-5;
+        })
     }
 
     motionUpdate() {
@@ -143,11 +151,11 @@ export class Player {
         let rotataeYQuaternion = new THREE.Quaternion();
         rotataeXQuaternion.setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),
-            this.motion.mouseNormalX * 0.00001
+            this.motion.mouseNormalX * this.lookSpeedX
         );
         rotataeYQuaternion.setFromAxisAngle(
             new THREE.Vector3(1, 0, 0),
-            this.motion.mouseNormalY * 0.00001
+            this.motion.mouseNormalY * this.lookSpeedY
         );
         this.model.applyQuaternion(rotataeXQuaternion);
         this.camera.applyQuaternion(rotataeYQuaternion);

@@ -3,18 +3,18 @@ import * as THREE from 'three';
 import { Player } from './player';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
-import grassTextureURL from '../res/textures/grass/Grass_01.png'
-import grassNormalURL from '../res/textures/grass/Grass_01_Nrm.png'
+const grassTextureURL = 'res/textures/grass/Grass_01.png'
+const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
 /*
 import bushTextureURL from '../public/res/textures/grass/Grass_01.png'
 import bushNormalURL from '../public/res/textures/grass/Grass_01_Nrm.png'
 */
 
-import playerModelUrl from '../res/models/avatar/source/eve.fbx?url';
+const playerModelUrl = 'res/models/avatar/source/eve.fbx';
 
-import skyFragShader from '../res/shaders/sky/sky.frag?raw';
-import skyVertShader from '../res/shaders/sky/sky.vert?raw';
+const skyFragShader = 'res/shaders/sky/sky.frag';
+const skyVertShader = 'res/shaders/sky/sky.vert';
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
@@ -31,11 +31,15 @@ const hud = {
   }
 }
 
-/*
-let GAME = {
-  playerLocation: "forest"
+function hudSetup() {
+  // Close Modal on Click
+  hud.modal.addEventListener('click', (_) => {
+    hud.modal.classList.remove('appear-grow');
+  })
 }
-*/
+hudSetup();
+
+const mousePointer = new THREE.Vector2();
 
 const textureLoader = new THREE.TextureLoader();
 const grassTexture = textureLoader.load(grassTextureURL)
@@ -64,6 +68,7 @@ const TREENAMES = [
   'CommonTree_4.fbx',
   'Willow_1.fbx',
 ]
+
 
 const renderer = new THREE.WebGLRenderer({
   antialias: window.devicePixelRatio <= 1,
@@ -128,18 +133,31 @@ fbxLoader.load(playerModelUrl, (PLAYERMOB) => {
   PLAYER.addModel(PLAYERMOB)
 });
 
+const raycaster = new THREE.Raycaster(undefined, undefined, undefined, 5);
+
 // Create a scene
 const scene = new THREE.Scene();
-// Add fog to scene for natural depth
+scene.fog = new THREE.FogExp2(0x0000ff, 0.02);
 // Add player to the scene
 scene.add(PLAYER.model);
-// Set the background
-// scene.background = new THREE.Color(0x87ceeb);
+
+// PLACEHOLDER
+const target = new THREE.Mesh(
+  new THREE.SphereBufferGeometry(1),
+  new THREE.MeshBasicMaterial({
+    color: 0xff0000
+  })
+)
+target.name = "target";
+scene.add(target)
+target.position.set(10, 1, 10);
 
 // Adding a skyball?
+const fogColor = new Float32Array(4);
+fogColor.set([0.0, 0.0, 1.0, 1.0])
 const skyShaderMaterial = new THREE.ShaderMaterial({
-  fragmentShader: skyFragShader,
-  vertexShader: skyVertShader,
+  fragmentShader: await fetch(skyFragShader).then(r => r.text()),
+  vertexShader: await fetch(skyVertShader).then(r => r.text()),
   uniforms: {
     time: {
       value: tick
@@ -148,44 +166,53 @@ const skyShaderMaterial = new THREE.ShaderMaterial({
       value: 0.02
     },
     fogColor: {
-      value: new THREE.Color(0x0000ff)
+      value: fogColor
     }
   },
   side: THREE.BackSide,
-  fog: true
+  fog: false
 })
 
+// Create a skyball for a dynamic starry sky
 const skyball = new THREE.Mesh(
   new THREE.SphereBufferGeometry(100, 40, 40),
   skyShaderMaterial
 )
+skyball.name = "skyball";
 scene.add(skyball);
 
+// Create random lights
+// Fireflies
+type FireFly = {
+  model: THREE.Object3D,
+  radius: number,
+  angularSpeed: number,
+  frequency: number,
+}
 function makeLight() {
-  const geometry = new THREE.BoxBufferGeometry(0.1, 0.1, 0.1, 1, 1, 1);
+  const geometry = new THREE.BoxBufferGeometry(0.05, 0.05, 0.05, 1, 1, 1);
   const material = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
+    color: 0xf0f0f0,
     emissive: 0xffffff,
   })
   const light = new THREE.Mesh(geometry, material);
   light.add(new THREE.PointLight(0x0f0f0f, 0.1));
-  return light;
+  const lightmodel: FireFly = {
+    model: light,
+    radius: 5 + Math.random() * 5,
+    angularSpeed: Math.random() * 0.01,
+    frequency: Math.random() * 0.01
+  }
+  return lightmodel;
 }
-
-let lights: THREE.Object3D[] = [];
+let lights: FireFly[] = [];
 function initLights() {
   for (let i = 0; i < 5; i++) {
     let l = makeLight();
-    l.position.set(
-      (Math.random() - 0.5) * 20,
-      2 + 0.5 * Math.random(),
-      (Math.random() - 0.5) * 20,
-    )
     lights.push(l);
-    scene.add(l);
+    scene.add(l.model);
   }
 }
-
 initLights();
 
 // Create a forest
@@ -225,14 +252,13 @@ async function createForest() {
   }
   return forest;
 }
-
 createForest().then(forest => scene.add(forest))
 
 // Ambient and directional light for lighting
 // Hemisphere light for simulating sun and reflected light
-const ambientLight = new THREE.AmbientLight(0x202020, 1.0);
+const ambientLight = new THREE.AmbientLight(0x505050, 1.0);
 scene.add(ambientLight);
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
 dirLight.color.setHSL(0.8, 0.3, 0.2);
 dirLight.position.set(0, 1.75, 0);
 dirLight.position.multiplyScalar(40);
@@ -268,6 +294,19 @@ plane.receiveShadow = true;
 plane.castShadow = false;
 scene.add(plane);
 
+// SETUP INTERACTION WITH MOUSE
+document.addEventListener('click', (e) => {
+  mousePointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+	mousePointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+  raycaster.setFromCamera(mousePointer, PLAYER.camera);
+  const intersects = raycaster.intersectObject(target);
+  if (intersects.length) {
+    hud.modal.classList.add('appear-grow');
+    hud.modal.innerText = "INTERACTIVE CONTENT HERE";
+  }
+})
+
 function shaderUpdate() {
   skyShaderMaterial.uniforms.time.value = tick;
 }
@@ -278,7 +317,11 @@ function gameUpdate() {
 
 function lightsUpdate() {
   lights.forEach(l => {
-    l.position.y = 1 + 0.5 * Math.sin(tick * 0.01);
+    l.model.position.set(
+      l.radius * Math.cos(l.angularSpeed * tick),
+      0.5 + 0.5 * Math.sin(l.frequency * 2 * Math.PI * tick),
+      l.radius * Math.sin(l.angularSpeed * tick),
+    )
   })
 }
 
