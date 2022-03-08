@@ -3,6 +3,11 @@ import * as THREE from 'three';
 import { Player } from './player';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
+
 const grassTextureURL = 'res/textures/grass/Grass_01.png'
 const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
@@ -71,7 +76,6 @@ const TREENAMES = [
 
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: window.devicePixelRatio <= 1,
   powerPreference: "high-performance"
 })
 renderer.shadowMap.enabled = true;
@@ -79,6 +83,10 @@ renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 app.appendChild(renderer.domElement);
+
+// Initialise an effect composer
+const composer = new EffectComposer(renderer);
+
 
 // tick variable keeps track of time
 let tick = 0.0;
@@ -125,7 +133,7 @@ const playerLight = new THREE.PointLight(0x01011d, 0.3);
 pl.add(playerLight);
 PLAYER.addModel(playerLight);
 playerLight.position.set(0, 0, 0);
-PLAYER.setCameraPosition(new THREE.Vector3(0, 1, 2))
+PLAYER.setCameraPosition(new THREE.Vector3(0, 1.25, 2))
 
 fbxLoader.load(playerModelUrl, (PLAYERMOB) => {
   PLAYERMOB.rotateY(Math.PI);
@@ -141,6 +149,20 @@ scene.fog = new THREE.FogExp2(0x0000ff, 0.02);
 // Add player to the scene
 scene.add(PLAYER.model);
 
+// Add the rendering pass
+const renderPass = new RenderPass(scene, PLAYER.camera);
+composer.addPass(renderPass);
+
+// Add bloom pass
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.5, 0.9);
+composer.addPass(bloomPass);
+
+// Add anti-aliasing pass
+if (window.devicePixelRatio <= 1) {
+  const smaaPass = new SMAAPass(window.innerWidth, window.innerHeight);
+  composer.addPass(smaaPass); 
+}
+
 // PLACEHOLDER
 const target = new THREE.Mesh(
   new THREE.SphereBufferGeometry(1),
@@ -150,7 +172,7 @@ const target = new THREE.Mesh(
 )
 target.name = "target";
 scene.add(target)
-target.position.set(10, 1, 10);
+target.position.set(15, 2, 15);
 
 // Adding a skyball?
 const fogColor = new Float32Array(4);
@@ -188,26 +210,28 @@ type FireFly = {
   radius: number,
   angularSpeed: number,
   frequency: number,
+  amplitude: number,
 }
+const fireFlyGeometry = new THREE.BoxBufferGeometry(0.05, 0.05, 0.05, 1, 1, 1);
+const fireFlyMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf0f0f0,
+  emissive: 0xffffff,
+})
 function makeLight() {
-  const geometry = new THREE.BoxBufferGeometry(0.05, 0.05, 0.05, 1, 1, 1);
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xf0f0f0,
-    emissive: 0xffffff,
-  })
-  const light = new THREE.Mesh(geometry, material);
+  const light = new THREE.Mesh(fireFlyGeometry, fireFlyMaterial);
   light.add(new THREE.PointLight(0x0f0f0f, 0.1));
   const lightmodel: FireFly = {
     model: light,
     radius: 5 + Math.random() * 5,
-    angularSpeed: Math.random() * 0.01,
-    frequency: Math.random() * 0.01
+    angularSpeed: 2 * (Math.random() - 0.5) * 0.01,
+    frequency: Math.random() * 0.01,
+    amplitude: 0.25 * Math.random(),
   }
   return lightmodel;
 }
 let lights: FireFly[] = [];
 function initLights() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 15; i++) {
     let l = makeLight();
     lights.push(l);
     scene.add(l.model);
@@ -312,14 +336,15 @@ function shaderUpdate() {
 }
 
 function gameUpdate() {
-  
+  skyball.rotateY(0.0001);
+  skyball.rotateZ(0.0002);
 }
 
 function lightsUpdate() {
   lights.forEach(l => {
     l.model.position.set(
       l.radius * Math.cos(l.angularSpeed * tick),
-      0.5 + 0.5 * Math.sin(l.frequency * 2 * Math.PI * tick),
+      0.5 + l.amplitude * Math.sin(l.frequency * 2 * Math.PI * tick),
       l.radius * Math.sin(l.angularSpeed * tick),
     )
   })
@@ -333,7 +358,7 @@ function update() {
 }
 
 function animate() {
-  renderer.render(scene, PLAYER.camera);
+  composer.render();
   tick += 1;
   update();
   window.requestAnimationFrame(animate);
