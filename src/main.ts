@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three';
 import { Player } from './player';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -11,10 +12,10 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
 const grassTextureURL = 'res/textures/grass/Grass_01.png'
 const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
-/*
-import bushTextureURL from '../public/res/textures/grass/Grass_01.png'
-import bushNormalURL from '../public/res/textures/grass/Grass_01_Nrm.png'
-*/
+
+import bushTextureURL from '/res/textures/grass/Grass_01.png'
+import bushNormalURL from '/res/textures/grass/Grass_01_Nrm.png'
+
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
 
@@ -33,7 +34,7 @@ const hud = {
     s: document.querySelector<HTMLButtonElement>('#s')!,
     d: document.querySelector<HTMLButtonElement>('#d')!,
     mouseCapture: document.querySelector<HTMLButtonElement>('#capture')!
-  }
+  }, 
 }
 
 function hudSetup() {
@@ -41,6 +42,15 @@ function hudSetup() {
   hud.modal.addEventListener('click', (_) => {
     hud.modal.classList.remove('appear-grow');
   })
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('id', 'adv-site-iframe');
+  iframe.src = 'https://www.youtube.com/embed/SIOM-RyamcI';
+  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  iframe.allowFullscreen = true;
+  iframe.style.width = "80%";
+  iframe.style.height = "80%";
+  iframe.style.margin = "auto";
+  hud.modal.appendChild(iframe);
 }
 hudSetup();
 
@@ -56,7 +66,14 @@ grassNormal.wrapS = THREE.MirroredRepeatWrapping;
 grassNormal.wrapT = THREE.MirroredRepeatWrapping;
 grassNormal.repeat.set(64, 64);
 
+const bushTexture = textureLoader.load(bushTextureURL);
+bushTexture.wrapT = THREE.MirroredRepeatWrapping;
+bushTexture.wrapS = THREE.MirroredRepeatWrapping;
+bushTexture.repeat.set(50, 2);
+const bushNormal = textureLoader.load(bushNormalURL);
+
 const fbxLoader = new FBXLoader();
+const gltfLoader = new GLTFLoader();
 const forest: THREE.Object3D = new THREE.Object3D()
 
 const BASE_PATH = {
@@ -71,7 +88,11 @@ const TREENAMES = [
   'BirchTree_2.fbx',
   'CommonTree_3.fbx',
   'CommonTree_4.fbx',
-  'Willow_1.fbx',
+  'Willow_2.fbx',
+]
+
+const BUILDINGNAMES = [
+  'Building1_Large.fbx'
 ]
 
 
@@ -82,6 +103,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.outputEncoding = THREE.sRGBEncoding;
 app.appendChild(renderer.domElement);
 
 // Initialise an effect composer
@@ -122,14 +144,14 @@ document.addEventListener('keypress', (e) => {
 })
 
 // Adding a sphere mesh for the player to follow
-PLAYER.model.castShadow = true;
+PLAYER.model.castShadow = false;
 const pl = new THREE.Mesh(
   new THREE.BoxBufferGeometry(.1, .1, .1, 1, 1, 1),
   new THREE.MeshBasicMaterial({
     color: 0xffffff
   })
 )
-const playerLight = new THREE.PointLight(0x01011d, 0.3);
+const playerLight = new THREE.PointLight(0x010101, 0.1);
 pl.add(playerLight);
 PLAYER.addModel(playerLight);
 playerLight.position.set(0, 0, 0);
@@ -145,7 +167,7 @@ const raycaster = new THREE.Raycaster(undefined, undefined, undefined, 5);
 
 // Create a scene
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0000ff, 0.02);
+// scene.fog = new THREE.FogExp2(0x0000ff, 0.02);
 // Add player to the scene
 scene.add(PLAYER.model);
 
@@ -154,16 +176,18 @@ const renderPass = new RenderPass(scene, PLAYER.camera);
 composer.addPass(renderPass);
 
 // Add bloom pass
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.5, 0.9);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.0, 0.5, 0.4);
 composer.addPass(bloomPass);
 
 // Add anti-aliasing pass
+// Only when the we are operating at 1:1 pixel ratio. Otherwise, it's pretty useless
 if (window.devicePixelRatio <= 1) {
   const smaaPass = new SMAAPass(window.innerWidth, window.innerHeight);
   composer.addPass(smaaPass); 
 }
 
 // PLACEHOLDER
+/*
 const target = new THREE.Mesh(
   new THREE.SphereBufferGeometry(1),
   new THREE.MeshBasicMaterial({
@@ -172,7 +196,8 @@ const target = new THREE.Mesh(
 )
 target.name = "target";
 scene.add(target)
-target.position.set(15, 2, 15);
+target.position.set(-15, 2, -15);
+*/
 
 // Adding a skyball?
 const fogColor = new Float32Array(4);
@@ -247,22 +272,17 @@ async function createForest() {
     const model = fbxLoader.loadAsync(`${BASE_PATH.props}${prop}`);
     loadings.push(model)
   }
+  const model = await gltfLoader.loadAsync('res/models/props/birch_vibrant_1.glb');
   props = await Promise.all(loadings)
   props.forEach(p => p.scale.set(0.02, 0.02, 0.02))
+  props.push(model.scene);
   const TREES = 20;
+  let theta = 0;
   for (let i = 0; i < TREES; i++) {
     let choice = Math.floor(Math.random() * props.length);
     let selected = props[choice]
-    selected.position.set(Math.random() * 10, 0, Math.random() * 10);
-    const THRESHOLD = 2;
-    const MAXTRIES = 20;
-    const FORESTSIZE = 10;
-    let tries = 0;
-    while (Math.min(...forest.children.map(c => selected.position.distanceTo(c.position))) < THRESHOLD) {
-      selected.position.set((Math.random() - 0.5) * 2 * FORESTSIZE, 0, (Math.random() - 0.5) * 2 * FORESTSIZE);
-      tries += 1;
-      if (tries > MAXTRIES) { break; }
-    }
+    selected.position.set((Math.random() - 0.5) * 20, -Math.random(), (Math.random() - 0.5) * 20);
+    theta += (2 * Math.PI) / TREES;
     selected.castShadow = true;
     selected.traverse(c => {
       c.castShadow = true
@@ -278,11 +298,34 @@ async function createForest() {
 }
 createForest().then(forest => scene.add(forest))
 
+async function loadBuildings() {
+  const building = await fbxLoader.loadAsync(`${BASE_PATH.buildings}${BUILDINGNAMES[0]}`);
+  building.scale.set(0.02, 0.02, 0.02);
+  building.position.set(12, 0, 12);
+  building.lookAt(PLAYER.model.position);
+  building.name = "library";
+  scene.add(building);
+}
+loadBuildings();
+
+
+const dancer = await fbxLoader.loadAsync(`res/models/mobs/Wave Hip Hop Dance.fbx`);
+dancer.scale.set(0.01, 0.01, 0.01);
+dancer.position.set(10, 0, 10);
+scene.add(dancer);
+const mixer = new THREE.AnimationMixer(dancer);
+const clips = dancer.animations;
+const clip = THREE.AnimationClip.findByName(clips, 'mixamo.com');
+const action = mixer.clipAction(clip);
+action.loop = Infinity;
+action.play();
+
+
 // Ambient and directional light for lighting
-// Hemisphere light for simulating sun and reflected light
-const ambientLight = new THREE.AmbientLight(0x505050, 1.0);
+// hemisphere light for simulating sun and reflected light
+const ambientLight = new THREE.AmbientLight(0x303060, 1.0);
 scene.add(ambientLight);
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
 dirLight.color.setHSL(0.8, 0.3, 0.2);
 dirLight.position.set(0, 1.75, 0);
 dirLight.position.multiplyScalar(40);
@@ -318,16 +361,33 @@ plane.receiveShadow = true;
 plane.castShadow = false;
 scene.add(plane);
 
-// SETUP INTERACTION WITH MOUSE
+// Add a hedge wall
+const hedgeGeometry = new THREE.TorusBufferGeometry(50, 2, 10, 8);
+const hedgeMaterial = new THREE.MeshStandardMaterial({
+  map: bushTexture,
+  normalMap: bushNormal,
+  fog: false
+})
+const hedge = new THREE.Mesh(hedgeGeometry, hedgeMaterial);
+scene.add(hedge);
+hedge.rotateX(Math.PI/2);
+
+// Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
 	mousePointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 
   raycaster.setFromCamera(mousePointer, PLAYER.camera);
-  const intersects = raycaster.intersectObject(target);
-  if (intersects.length) {
-    hud.modal.classList.add('appear-grow');
-    hud.modal.innerText = "INTERACTIVE CONTENT HERE";
+  const intersects = raycaster.intersectObjects(scene.children);
+  if (intersects) {
+    console.log(intersects);
+  }
+  if (intersects[0].object.name == "Building1_Large") {
+    hud.modal.classList.add("appear-grow");
+  }
+  if (intersects[0].object.name == "Guard03_Mesh") {
+    hud.modal.classList.add("appear-grow");
+    hud.modal.innerText = "Welcome to A La Danse";
   }
 })
 
@@ -338,6 +398,14 @@ function shaderUpdate() {
 function gameUpdate() {
   skyball.rotateY(0.0001);
   skyball.rotateZ(0.0002);
+  mixer.update(0.01);
+  dancer.lookAt(PLAYER.model.position);
+  console.log(dancer.position.distanceTo(PLAYER.model.position))
+  if (dancer.position.distanceTo(PLAYER.model.position) < 2) {
+    hud.modal.classList.add("appear-grow");
+    hud.modal.innerText = "Welcome to A La Danse";
+    console.log('in bounds');
+  }
 }
 
 function lightsUpdate() {
