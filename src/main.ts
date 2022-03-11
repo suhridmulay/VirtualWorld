@@ -103,7 +103,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.outputEncoding = THREE.sRGBEncoding;
 app.appendChild(renderer.domElement);
 
 // Initialise an effect composer
@@ -256,7 +255,7 @@ function makeLight() {
 }
 let lights: FireFly[] = [];
 function initLights() {
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 20; i++) {
     let l = makeLight();
     lights.push(l);
     scene.add(l.model);
@@ -277,12 +276,12 @@ async function createForest() {
   props.forEach(p => p.scale.set(0.02, 0.02, 0.02))
   props.push(model.scene);
   const TREES = 20;
-  let theta = 0;
+  // let theta = 0;
   for (let i = 0; i < TREES; i++) {
     let choice = Math.floor(Math.random() * props.length);
     let selected = props[choice]
     selected.position.set((Math.random() - 0.5) * 20, -Math.random(), (Math.random() - 0.5) * 20);
-    theta += (2 * Math.PI) / TREES;
+    // theta += (2 * Math.PI) / TREES;
     selected.castShadow = true;
     selected.traverse(c => {
       c.castShadow = true
@@ -308,6 +307,26 @@ async function loadBuildings() {
 }
 loadBuildings();
 
+async function loadCat() {
+  const cat = await fbxLoader.loadAsync(`${BASE_PATH.props}CAT 3.fbx`);
+  cat.position.set(-10, 0, 10);
+  cat.scale.set(0.01, 0.01, 0.01);
+  cat.traverse(child => {
+    if (child instanceof THREE.Mesh) {
+      (child as THREE.Mesh).material = skyShaderMaterial;
+    }
+  })
+  scene.add(cat);
+}
+loadCat();
+
+async function miscellaneousLoader() {
+  const msChecker = await gltfLoader.loadAsync('res/models/misc/Material and scale check.glb');
+  msChecker.scene.rotateY(Math.PI/2);
+  msChecker.scene.position.setY(0.1);
+  scene.add(msChecker.scene);
+}
+miscellaneousLoader();
 
 const dancer = await fbxLoader.loadAsync(`res/models/mobs/Wave Hip Hop Dance.fbx`);
 dancer.scale.set(0.01, 0.01, 0.01);
@@ -405,6 +424,8 @@ function gameUpdate() {
     hud.modal.classList.add("appear-grow");
     hud.modal.innerText = "Welcome to A La Danse";
     console.log('in bounds');
+  } else {
+    
   }
 }
 

@@ -105,12 +105,13 @@ float snoise(vec4 v){
 void main() {
 
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 blue = vec4(0.0, 0.0, 0.3, 1.0);
+    vec4 blue = vec4(0.1, 0.32, 1.0, 1.0);
     vec4 slateBlue = vec4(0.416, 0.353, 0.804, 1.0);
     vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
-    float blueMix = snoise(vec4(vPosition.x / 100.0, vPosition.y / 100.0, vPosition.z / 100.0, time * 0.01));
+    float blueMix = snoise(vec4(vPosition.x / 80.0, vPosition.y / 80.0, vPosition.z / 80.0, time * 0.004));
     float slateblueMix = snoise(vec4(vPosition.x / 20.0, vPosition.y / 20.0, vPosition.z / 20.0, time * 0.0001)) * 0.25;
-    float whiteMix = snoise(vec4(vPosition.x, vPosition.y, vPosition.z, time * 0.001));
+    float;
+    float whiteMix = snoise(vec4(vPosition.x, vPosition.y, vPosition.z, 0));
     vec4 finalColor = mix(black, blue, blueMix);
     finalColor = mix(finalColor, slateBlue, slateblueMix);
     if (whiteMix > 0.98 - (blueMix * 0.1) - (slateblueMix * 0.1)) {

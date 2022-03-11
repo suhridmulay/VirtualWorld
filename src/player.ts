@@ -61,7 +61,7 @@ export class Player {
         this.animationState = "idle";
         this.location = location;
         this.initControls();
-        this.lookSpeedX = this.lookSpeedY = 1e-5;
+        this.lookSpeedX = this.lookSpeedY = 0.05;
     }
 
     setCameraPosition(position: THREE.Vector3) {
@@ -121,8 +121,9 @@ export class Player {
 
         document.addEventListener("pointermove", (e) => {
             if (this.motion.mousecapture) {
-                const normalisedX = (e.clientX - window.innerWidth / 2) * 2 - 1;
-                const normalisedY = -((e.clientY - window.innerHeight / 2) * 2 - 1);
+                const normalisedX = ( e.clientX / window.innerWidth ) * 2 - 1;
+                const normalisedY = - ( e.clientY / window.innerHeight ) * 2 + 1;
+                console.log({normalisedX, normalisedY});
                 this.motion.mouseNormalX = -normalisedX;
                 this.motion.mouseNormalY = normalisedY;
             }
@@ -155,10 +156,10 @@ export class Player {
         );
         rotataeYQuaternion.setFromAxisAngle(
             new THREE.Vector3(1, 0, 0),
-            this.motion.mouseNormalY * this.lookSpeedY
+            this.motion.mouseNormalY * 0.3
         );
         this.model.applyQuaternion(rotataeXQuaternion);
-        this.camera.applyQuaternion(rotataeYQuaternion);
+        this.camera.quaternion.slerp(rotataeYQuaternion, 0.05);
     }
 
     animate() {
