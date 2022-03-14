@@ -329,21 +329,36 @@ grassTexture.repeat.set(2, 2);
 const islandMaterial = new THREE.MeshStandardMaterial({
   color: 'green'
 })
-const islandGeometry = new THREE.BoxBufferGeometry(1, 0.1, 1);
-const ISLANDS_COUNT = 100;
-const islands = new THREE.InstancedMesh(islandGeometry, islandMaterial, ISLANDS_COUNT);
+const bush = await fbxLoader.loadAsync('/res/models/props/flowers.fbx');
+const bushGeometry = (bush.children[0] as THREE.Mesh).geometry;
+const bushMaterial = (bush.children[0] as THREE.Mesh).material;
+const islandGeometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 12);
+const ISLANDS_COUNT = 500;
+const RINGS = 1;
+const flowers = new THREE.InstancedMesh(bushGeometry, bushMaterial, ISLANDS_COUNT);
+let theta = 0;
+const dTheta = Math.PI * 2 / ISLANDS_COUNT;
 for (let i = 0; i < ISLANDS_COUNT; i++) {
   const transform = new THREE.Object3D()
+  const radius = 7;
+  const offset = (Math.random() * 2 - 1) * 5;
   transform.position.set(
-    (Math.random() - 0.5) * 50,
+    (radius + offset) * Math.cos(theta),
     0,
-    (Math.random() - 0.5) * 50,
+    (radius + offset) * Math.sin(theta),
   )
+  transform.scale.set(
+      0.5, 0.5, 0.5
+  )
+  transform.rotateX(Math.random() * Math.PI * 2/30)
+  transform.rotateZ(Math.random() * Math.PI * 2/30)
   transform.rotateY(Math.random() * 2 * Math.PI);
+  transform.rotateX(-Math.PI/2);
   transform.updateMatrix();
-  islands.setMatrixAt(i, transform.matrix);
+  theta += dTheta;
+  flowers.setMatrixAt(i, transform.matrix);
 }
-// scene.add(islands);
+scene.add(flowers);
 grassTexture.repeat.set(64, 64);
 
 async function loadBuildings() {
@@ -359,7 +374,7 @@ async function loadBuildings() {
     })
   )
   base.add(building)
-
+  building.position.y += 0.1;
   base.position.set(15, 0, 15);
   base.lookAt(PLAYER.model.position);
   building.name = "library";
@@ -368,19 +383,19 @@ async function loadBuildings() {
 loadBuildings();
 
 // Create adverts
-// const ads: Advert[] = []
-// const ioclAd = await createAdvert('iocl', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Indian_Oil_Logo.svg/1200px-Indian_Oil_Logo.svg.png');
-// scene.add(ioclAd.model);
-// setAdvertPosition(ioclAd, new THREE.Vector3(12, 3, -12));
-// ads.push(ioclAd);
-// const fbAd = await createAdvert('fb', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/800px-2021_Facebook_icon.svg.png');
-// scene.add(fbAd.model);
-// setAdvertPosition(fbAd, new THREE.Vector3(11, 3, -11));
-// ads.push(fbAd);
-// const googleAd = await createAdvert('google', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/640px-Google_Chrome_icon_%28February_2022%29.svg.png');
-// scene.add(googleAd.model);
-// setAdvertPosition(googleAd, new THREE.Vector3(10, 3, -14));
-// ads.push(googleAd);
+const ads: Advert[] = []
+const ioclAd = await createAdvert('iocl', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Indian_Oil_Logo.svg/1200px-Indian_Oil_Logo.svg.png');
+scene.add(ioclAd.model);
+setAdvertPosition(ioclAd, new THREE.Vector3(12, 3, -12));
+ads.push(ioclAd);
+const fbAd = await createAdvert('fb', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/800px-2021_Facebook_icon.svg.png');
+scene.add(fbAd.model);
+setAdvertPosition(fbAd, new THREE.Vector3(11, 3, -11));
+ads.push(fbAd);
+const googleAd = await createAdvert('google', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/640px-Google_Chrome_icon_%28February_2022%29.svg.png');
+scene.add(googleAd.model);
+setAdvertPosition(googleAd, new THREE.Vector3(10, 3, -14));
+ads.push(googleAd);
 
 const dancer = await fbxLoader.loadAsync(`res/models/mobs/Wave Hip Hop Dance.fbx`);
 dancer.scale.set(0.01, 0.01, 0.01);
@@ -455,7 +470,7 @@ const hedgeMaterial = new THREE.MeshStandardMaterial({
   fog: false
 })
 const hedge = new THREE.Mesh(hedgeGeometry, hedgeMaterial);
-scene.add(hedge);
+//scene.add(hedge);
 hedge.rotateX(Math.PI / 2);
 
 // Setup mouse interactions
@@ -482,9 +497,21 @@ function gameUpdate() {
   skyball.rotateZ(0.0002);
   mixer.update(0.01);
   dancer.lookAt(PLAYER.position);
-  // ads.forEach(ad => {
-  //   ad.model.rotateY(0.01);
-  // })
+  ads.forEach(ad => {
+    ad.model.rotateY(0.01);
+  })
+
+  // Player out of bounds logic
+  if (PLAYER.model.position.lengthSq() > 20 * 20) {
+    if (!hud.modal.classList.contains('appear-grow')) {
+      hud.modal.classList.add('appear-grow');
+      hud.modal.innerText = "None but devils play past here, turn back!"
+    }
+    if (PLAYER.model.position.lengthSq() > 24 * 24) {
+      hud.modal.classList.remove('appear-grow');
+      PLAYER.model.position.set(0, 0, 0);
+    }
+  }
 }
 
 function lightsUpdate() {
