@@ -98,12 +98,7 @@ float snoise(vec4 v){
 }
 
 void main() {
-    vec3 newPosition = position;
-    float noiseMultiplier = 0.8 * snoise(vec4(position * 10.0, time * 0.01));
-    noiseMultiplier += 0.15 * snoise(vec4(position * 5.0, time * 0.01));
-    noiseMultiplier += 0.05 * snoise(vec4(position, time * 0.01));
-    newPosition *= 1.0 + 0.2 * noiseMultiplier;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     vPosition = position;
     vNormal = normal;
 }

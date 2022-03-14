@@ -2,6 +2,9 @@ uniform float time;
 varying vec3 vPosition;
 varying vec3 vNormal;
 
+uniform sampler2D grassTexture,
+uniform sampler2D grassNormals,
+
 #define PI 3.1415
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
