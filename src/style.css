@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,700;1,400&display=swap');
 
+.hidden {
+  display: none;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -9,7 +9,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
 
-import {Reflector} from 'three/examples/jsm/objects/Reflector';
+import { Reflector } from 'three/examples/jsm/objects/Reflector';
 
 const grassTextureURL = 'res/textures/grass/Grass_01.png'
 const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
@@ -49,16 +49,8 @@ function hudSetup() {
   // Close Modal on Click
   hud.modal.addEventListener('click', (_) => {
     hud.modal.classList.remove('appear-grow');
+    hud.modal.innerHTML = '';
   })
-  const iframe = document.createElement('iframe');
-  iframe.setAttribute('id', 'adv-site-iframe');
-  iframe.src = 'https://www.youtube.com/embed/SIOM-RyamcI';
-  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  iframe.allowFullscreen = true;
-  iframe.style.width = "80%";
-  iframe.style.height = "80%";
-  iframe.style.margin = "auto";
-  hud.modal.appendChild(iframe);
 }
 hudSetup();
 
@@ -158,8 +150,6 @@ document.addEventListener('keypress', (e) => {
 
 // Create a scene
 const scene = new THREE.Scene();
-// scene.fog = new THREE.FogExp2(0x0000ff, 0.02);
-// Add player to the scene
 scene.add(PLAYER.model);
 
 // Adding a sphere mesh for the player to follow
@@ -181,6 +171,18 @@ fbxLoader.load(playerModelUrl, (PLAYERMOB) => {
   PLAYER.addModel(PLAYERMOB)
 });
 
+const audioListener = new THREE.AudioListener();
+PLAYER.addModel(audioListener as any);
+
+const sound = new THREE.PositionalAudio(audioListener as any);
+
+const audioLoader = new THREE.AudioLoader();
+const audioBuffer = await audioLoader.loadAsync('https://upload.wikimedia.org/wikipedia/commons/0/01/99_bottles_of_beer.ogg');
+sound.setBuffer(audioBuffer);
+sound.loop = true;
+sound.setRefDistance(20);
+sound.setRolloffFactor(0.9);
+
 const raycaster = new THREE.Raycaster(undefined, undefined, undefined, 5);
 
 
@@ -198,19 +200,6 @@ if (window.devicePixelRatio <= 1) {
   const smaaPass = new SMAAPass(window.innerWidth, window.innerHeight);
   composer.addPass(smaaPass);
 }
-
-// PLACEHOLDER
-/*
-const target = new THREE.Mesh(
-  new THREE.SphereBufferGeometry(1),
-  new THREE.MeshBasicMaterial({
-    color: 0xff0000
-  })
-)
-target.name = "target";
-scene.add(target)
-target.position.set(-15, 2, -15);
-*/
 
 // Adding a skyball?
 const fogColor = new Float32Array(4);
@@ -257,7 +246,6 @@ const fireFlyGeometry = new THREE.BoxBufferGeometry(0.05, 0.05, 0.05, 1, 1, 1);
 function makeLight() {
   const fireflyColor = new THREE.Color();
   fireflyColor.setHSL(Math.random(), 0.8 + 0.2 * Math.random(), 0.8 + 0.2 * Math.random())
-  console.log(fireflyColor);
   const fireFlyMaterial = new THREE.MeshBasicMaterial({
     color: fireflyColor,
   })
@@ -332,9 +320,7 @@ const islandMaterial = new THREE.MeshStandardMaterial({
 const bush = await fbxLoader.loadAsync('/res/models/props/flowers.fbx');
 const bushGeometry = (bush.children[0] as THREE.Mesh).geometry;
 const bushMaterial = (bush.children[0] as THREE.Mesh).material;
-const islandGeometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 12);
 const ISLANDS_COUNT = 500;
-const RINGS = 1;
 const flowers = new THREE.InstancedMesh(bushGeometry, bushMaterial, ISLANDS_COUNT);
 let theta = 0;
 const dTheta = Math.PI * 2 / ISLANDS_COUNT;
@@ -347,13 +333,12 @@ for (let i = 0; i < ISLANDS_COUNT; i++) {
     0,
     (radius + offset) * Math.sin(theta),
   )
-  transform.scale.set(
-      0.5, 0.5, 0.5
-  )
-  transform.rotateX(Math.random() * Math.PI * 2/30)
-  transform.rotateZ(Math.random() * Math.PI * 2/30)
+  const scale = 0.4 + 0.2 * (Math.random() * 2 - 1);
+  transform.scale.setScalar(scale);
+  transform.rotateX((Math.random() * 2 - 1) * Math.PI * 1 / 6)
+  transform.rotateZ((Math.random() * 2 - 1) * Math.PI * 1 / 6)
   transform.rotateY(Math.random() * 2 * Math.PI);
-  transform.rotateX(-Math.PI/2);
+  transform.rotateX(-Math.PI / 2);
   transform.updateMatrix();
   theta += dTheta;
   flowers.setMatrixAt(i, transform.matrix);
@@ -436,15 +421,13 @@ const groundMirror = new Reflector(
     clipBias: 0.01,
     color: 0xfff0ff,
   }
-  )
-  groundMirror.rotateX(-Math.PI/2);
-  scene.add(groundMirror),
-  groundMirror.position.set(0, -0.02, 0);
-
+)
+groundMirror.rotateX(-Math.PI / 2);
+scene.add(groundMirror),
+groundMirror.position.set(0, -0.02, 0);
 
 const plane = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(200, 200, 256, 256),
-  // planeShaderMaterial
   new THREE.MeshPhysicalMaterial({
     map: grassTexture,
     normalMap: grassNormal,
@@ -461,17 +444,21 @@ plane.receiveShadow = true;
 plane.castShadow = false;
 scene.add(plane);
 
-// Add a hedge wall
-const hedgeGeometry = new THREE.TorusBufferGeometry(50, 2, 10, 10);
-const hedgeMaterial = new THREE.MeshStandardMaterial({
-  map: bushTexture,
-  normalMap: bushNormal,
-  normalMapType: THREE.ObjectSpaceNormalMap,
-  fog: false
-})
-const hedge = new THREE.Mesh(hedgeGeometry, hedgeMaterial);
-//scene.add(hedge);
-hedge.rotateX(Math.PI / 2);
+// Add a screen
+const video = document.createElement('video');
+video.src = 'res/media/old.mkv';
+const videoTexture = new THREE.VideoTexture(video);
+
+const videoPlane = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(2, 1),
+  new THREE.MeshStandardMaterial({
+    map: videoTexture
+  })
+)
+videoPlane.name = 'screen';
+videoPlane.position.set(0, 2, -10);
+scene.add(videoPlane);
+videoPlane.lookAt(PLAYER.model.position)
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -481,9 +468,29 @@ document.addEventListener('click', (e) => {
   raycaster.setFromCamera(mousePointer, PLAYER.camera);
   const intersects = raycaster.intersectObjects(scene.children);
   console.log(intersects);
-  if (intersects[0].object.name == 'Guard03_Mesh') {
+  if (intersects[0].object.name == 'Ch03') {
     if (!hud.modal.classList.contains('appear-grow')) {
       hud.modal.classList.add('appear-grow')
+      hud.modal.innerText = `Welcome to A-La-Danse`
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('id', 'adv-site-iframe');
+      iframe.src = 'https://www.youtube.com/embed/7JdEZoffm-Q';
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      iframe.allowFullscreen = true;
+      iframe.style.width = "80%";
+      iframe.style.height = "80%";
+      iframe.style.margin = "auto";
+      hud.modal.appendChild(iframe);
+    }
+  }
+
+  if (intersects[0].object.name == 'screen') {
+    if (video.currentTime == 0 || video.paused) {
+      video.play();
+      console.log('playing');
+    } else {
+      video.pause();
+      console.log('paused');
     }
   }
 })
@@ -496,10 +503,20 @@ function gameUpdate() {
   skyball.rotateY(0.0001);
   skyball.rotateZ(0.0002);
   mixer.update(0.01);
-  dancer.lookAt(PLAYER.position);
   ads.forEach(ad => {
     ad.model.rotateY(0.01);
   })
+
+  // If close to dancer
+  if (PLAYER.model.position.distanceTo(dancer.position) < 3) {
+    if (!sound.isPlaying) {
+      sound.play();
+    }
+  } else {
+    if (sound.isPlaying) {
+      sound.pause();
+    }
+  }
 
   // Player out of bounds logic
   if (PLAYER.model.position.lengthSq() > 20 * 20) {
@@ -537,5 +554,11 @@ function animate() {
   update();
   window.requestAnimationFrame(animate);
 }
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  PLAYER.camera.aspect = window.innerWidth / window.innerHeight;
+  PLAYER.camera.updateProjectionMatrix();
+})
 
 animate();
