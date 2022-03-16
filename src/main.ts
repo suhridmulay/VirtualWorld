@@ -250,7 +250,6 @@ function makeLight() {
     color: fireflyColor,
   })
   const light = new THREE.Mesh(fireFlyGeometry, fireFlyMaterial);
-  light.add(new THREE.PointLight(fireflyColor, 0.001));
   const lightmodel: FireFly = {
     model: light,
     radius: 5 + Math.random() * 5,
@@ -317,7 +316,7 @@ grassTexture.repeat.set(2, 2);
 const islandMaterial = new THREE.MeshStandardMaterial({
   color: 'green'
 })
-const bush = await fbxLoader.loadAsync('/res/models/props/flowers.fbx');
+const bush = await fbxLoader.loadAsync('/res/models/props/Flowers.fbx');
 const bushGeometry = (bush.children[0] as THREE.Mesh).geometry;
 const bushMaterial = (bush.children[0] as THREE.Mesh).material;
 const ISLANDS_COUNT = 500;
