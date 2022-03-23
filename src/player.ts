@@ -12,6 +12,7 @@ interface MotionState {
     left: boolean;
     reverse: boolean;
     right: boolean;
+    speed: boolean;
     mouseNormalX: number;
     mouseNormalY: number;
     mousecapture: boolean,
@@ -30,6 +31,9 @@ export class Player {
     velocity: number;
     // Position stores the current position of the player
     position: THREE.Vector3;
+    // Acceleration
+    acceleration: number;
+    decceleration: THREE.Vector3;
     // Animation state stores current animation of the player
     // Determines which animation will be played when
     animationState: string;
@@ -53,6 +57,7 @@ export class Player {
             left: false,
             reverse: false,
             right: false,
+            speed: false,
             mouseNormalX: 0,
             mouseNormalY: 0,
             mousecapture: false,
@@ -62,6 +67,8 @@ export class Player {
         this.location = location;
         this.initControls();
         this.lookSpeedX = this.lookSpeedY = 0.05;
+        this.acceleration = 2;
+        this.decceleration = new THREE.Vector3();
     }
 
     setCameraPosition(position: THREE.Vector3) {
@@ -88,6 +95,10 @@ export class Player {
                     break;
                 case "d":
                     this.motion.right = true;
+            }
+
+            if (e.shiftKey) {
+                this.motion.speed = true;
             }
         });
 
@@ -117,6 +128,10 @@ export class Player {
                     this.motion.right = false;
                     break;
             }
+
+            if (e.shiftKey) {
+                this.motion.speed = false;
+            }
         });
 
         document.addEventListener("pointermove", (e) => {
@@ -134,18 +149,25 @@ export class Player {
         })
     }
 
-    motionUpdate() {
+    motionUpdate(deltaT: number) {
+
+        let acc = this.acceleration;
+
+        if (this.motion.speed) {
+            acc *= 2;
+        }
+
         if (this.motion.forward) {
-            this.velocity += 0.01;
+            this.velocity += acc * deltaT;
         }
         if (this.motion.left) {
-            this.model.rotateY(0.02);
+            this.model.rotateY(0.02 * deltaT);
         }
         if (this.motion.right) {
-            this.model.rotateY(-0.02);
+            this.model.rotateY(-0.02 * deltaT);
         }
         if (this.motion.reverse) {
-            this.velocity -= 0.01;
+            this.velocity -= acc * deltaT;
         }
 
         let rotataeXQuaternion = new THREE.Quaternion();
@@ -195,8 +217,8 @@ export class Player {
         }
     }
 
-    update() {
-        this.motionUpdate();
+    update(deltaT: number) {
+        this.motionUpdate(deltaT);
         this.animate();
         this.model.translateZ(-this.velocity);
         this.velocity *= 0.8;

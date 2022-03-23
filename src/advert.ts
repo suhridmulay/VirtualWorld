@@ -8,7 +8,7 @@ export type Advert = {
 
 const advertTextureLoader = new THREE.TextureLoader();
 
-const advertGeometryLarge = new THREE.BoxBufferGeometry(1, 1, 0.1);
+const advertGeometryLarge = new THREE.PlaneBufferGeometry(1, 1);
 
 export async function createAdvert(name: string, pathToLogo: string): Promise<Advert> {
     const adTexture = await advertTextureLoader.loadAsync(pathToLogo);
@@ -17,7 +17,7 @@ export async function createAdvert(name: string, pathToLogo: string): Promise<Ad
         advertGeometryLarge,
         new THREE.MeshBasicMaterial({
             map: adTexture,
-            transparent: true,
+            transparent: false,
             side: THREE.DoubleSide
         })
     )
