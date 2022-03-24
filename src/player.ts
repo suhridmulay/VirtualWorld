@@ -161,10 +161,10 @@ export class Player {
             this.velocity += acc * deltaT;
         }
         if (this.motion.left) {
-            this.model.rotateY(0.02 * deltaT);
+            this.model.rotateY(2 * deltaT);
         }
         if (this.motion.right) {
-            this.model.rotateY(-0.02 * deltaT);
+            this.model.rotateY(-2 * deltaT);
         }
         if (this.motion.reverse) {
             this.velocity -= acc * deltaT;

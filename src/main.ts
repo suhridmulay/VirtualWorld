@@ -215,6 +215,16 @@ const skyShaderMaterial = new THREE.ShaderMaterial({
   fog: false
 })
 
+const groundPlane = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(200, 200, 100, 100),
+  new THREE.MeshBasicMaterial({
+    color: 'green',
+    wireframe: true,
+  })
+)
+groundPlane.rotateX(-Math.PI/2);
+scene.add(groundPlane);
+
 // Create a skyball for a dynamic starry sky
 const skyball = new THREE.Mesh(
   new THREE.SphereBufferGeometry(100, 40, 40),
