@@ -1,35 +1,55 @@
 import * as THREE from 'three';
 
-export type Advert = {
-    name: string,
-    model: THREE.Object3D,
-    position: THREE.Vector3
-}
+const bannerGeometry = new THREE.PlaneBufferGeometry(2, 1, 1, 1);
 
-const advertTextureLoader = new THREE.TextureLoader();
+const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 12, 12)
+const interactionRingMatrial = new THREE.MeshBasicMaterial({
+    color: 'gold'
+})
 
-const advertGeometryLarge = new THREE.PlaneBufferGeometry(1, 1);
+export class Advert {
+    _model: THREE.Object3D
+    _interactionRing: THREE.Object3D;
 
-export async function createAdvert(name: string, pathToLogo: string): Promise<Advert> {
-    const adTexture = await advertTextureLoader.loadAsync(pathToLogo);
-    console.log({w: adTexture.image.width, h: adTexture.image.height});
-    const adVert = new THREE.Mesh(
-        advertGeometryLarge,
-        new THREE.MeshBasicMaterial({
-            map: adTexture,
-            transparent: false,
-            side: THREE.DoubleSide
-        })
-    )
-    adVert.name = name;
-    return {
-        name: name,
-        model: adVert,
-        position: new THREE.Vector3(0, 0, 0),
-    } as Advert
-}
+    _firmname: string;
+    _message: string;
 
-export async function setAdvertPosition(advert: Advert, position: THREE.Vector3) {
-    advert.model.position.copy(position);
-    advert.position.copy(position);
+    constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3) {
+
+        this._firmname = firmName;
+        this._message = message;
+
+        this._model = new THREE.Object3D()
+        this.addBanner(adTexture, offset)
+        this.addPanel(panelModel)
+        const interactionRing = new THREE.Mesh(
+            interactionRingGeometry,
+            interactionRingMatrial
+        )
+        interactionRing.rotateX(-Math.PI/2)
+        interactionRing.position.set(1.375, 0.5, 2);
+        this._interactionRing = interactionRing;
+        this._model.add(interactionRing)
+    }
+
+    update() {
+        
+    }
+
+    async addPanel(panel: THREE.Object3D) {
+        this._model.add(panel.clone());
+    }
+
+    addBanner(adTexture: THREE.Texture, offset?: THREE.Vector3) {
+        const banner = new THREE.Mesh(
+            bannerGeometry,
+            new THREE.MeshBasicMaterial({
+                map: adTexture
+            })
+        )
+        if (offset) {
+            banner.position.copy(offset)
+        }
+        this._model.add(banner)
+    }
 }

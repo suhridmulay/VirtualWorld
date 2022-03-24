@@ -117,7 +117,7 @@ export class Player {
                     this.motion.forward = false;
                     this.animationState = "idle";
                     break;
-                case "a": case "a":
+                case "a": case "A":
                     this.motion.left = false;
                     break;
                 case "s": case "S":
@@ -144,6 +144,14 @@ export class Player {
 
         document.addEventListener('touchstart', (_) => {
             this.lookSpeedX = this.lookSpeedY = 3e-5;
+        })
+
+        document.addEventListener('mousedown', () => {
+            this.motion.mousecapture = true;
+        })
+
+        document.addEventListener('mouseup', () => {
+            this.motion.mousecapture = false;
         })
     }
 
