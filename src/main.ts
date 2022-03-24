@@ -14,6 +14,7 @@ const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
 
 import { Advert } from './advert';
+import { Artwork } from './artowrk';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
@@ -143,7 +144,7 @@ const renderPass = new RenderPass(scene, PLAYER.camera);
 composer.addPass(renderPass);
 
 // Add bloom pass
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.5, 0.9);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.5, 0.98);
 composer.addPass(bloomPass);
 
 // Add anti-aliasing pass
@@ -179,7 +180,7 @@ scene.add(skyball);
 function loadLights() {
   const ambientLight = new THREE.AmbientLight(0x404040, 4);
   scene.add(ambientLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 10);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 8);
   dirLight.color.setHSL(0.5, 0.3, 0.2);
   dirLight.position.set(0, 1.75, 0);
   dirLight.position.multiplyScalar(40);
@@ -191,6 +192,7 @@ function loadLights() {
 }
 loadLights();
 
+// Ads
 let ads: Advert[] = []
 const adPanel = await gltfLoader.loadAsync('res/models/misc/Spons Panel.glb');
 adPanel.scene.scale.setScalar(0.001);
@@ -198,28 +200,67 @@ const adTexture = await textureLoader.loadAsync('res/backgrounds/vnit_pan_2.png'
 const ad = new Advert("Your Firm", "Your Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
 ads.push(ad);
 scene.add(ad._model);
-ad._model.position.set(0, 0, -25);
-
+ad._model.position.set(10, 0, -5);
+ad._model.rotateY(-Math.PI/2)
 const ad2 = new Advert("Their Firm", "Their Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
 ads.push(ad2);
 scene.add(ad2._model);
-ad2._model.position.set(5, 0, -25);
-
+ad2._model.position.set(10, 0, 0);
+ad2._model.rotateY(-Math.PI/2)
 const ad3 = new Advert("My Firm", "My Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
 ads.push(ad3);
 scene.add(ad3._model);
-ad3._model.position.set(-5, 0, -25);
+ad3._model.position.set(10, 0, 5);
+ad3._model.rotateY(-Math.PI/2)
+
+// Artwork
+let artworks: Artwork[] = []
+const artworkPanel = await gltfLoader.loadAsync('res/models/misc/Display Panels.glb');
+artworkPanel.scene.scale.setScalar(0.001);
+const artowrkTexture = await textureLoader.loadAsync('res/backgrounds/vnit_pan_2.png');
+const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel.scene, new THREE.Vector3(3.1875, 1.5, -1));
+artworks.push(artowrk)
+scene.add(artowrk._model);
+artowrk._model.position.set(-10, 0, 0);
+artowrk._model.lookAt(PLAYER.position);
+
+// Hedge
+const hedgeTexture = await textureLoader.loadAsync('res/textures/hedge/base.jpg');
+hedgeTexture.wrapS = hedgeTexture.wrapT = THREE.MirroredRepeatWrapping;
+hedgeTexture.repeat.set(200, 5)
+const hedgeNormalTexture = await textureLoader.loadAsync('res/textures/hedge/normal.jpg');
+const hedgeBumpTexture = await textureLoader.loadAsync('res/textures/hedge/height.png');
+const hedgeAOTexture = await textureLoader.loadAsync('res/textures/hedge/ao.jpg');
+const hedgeRoughnessTexture = await textureLoader.loadAsync('res/textures/hedge/roughness.jpg');
+const hedge = new THREE.Mesh(
+  new THREE.TorusBufferGeometry(50, 1, 12, 120),
+  new THREE.MeshStandardMaterial({
+    map: hedgeTexture,
+    normalMap: hedgeNormalTexture,
+    bumpMap: hedgeBumpTexture,
+    aoMap: hedgeAOTexture,
+    roughness: 1.0,
+    roughnessMap: hedgeRoughnessTexture
+  })
+)
+hedge.rotateX(-Math.PI/2)
+scene.add(hedge)
 
 
-// renderer.compile(scene, PLAYER.camera);
-
+// Hobo
 const concreteTexture = await textureLoader.loadAsync('res/textures/concrete/base.jpg')
 const concreteNormalTexture = await textureLoader.loadAsync('res/textures/concrete/normal.jpg')
 const concreteBumpTexture = await textureLoader.loadAsync('res/textures/concrete/height.png')
 const concreteAOTexture = await textureLoader.loadAsync('res/textures/concrete/ao.jpg')
 const concreteRoughnessTexture = await textureLoader.loadAsync('res/textures/concrete/roughness.jpg')
-
 const hoboModel = await gltfLoader.loadAsync('res/models/misc/hobo.glb');
+hoboModel.scene.traverse(c => {
+  if (c instanceof THREE.Mesh) {
+    (c.geometry as THREE.BufferGeometry).computeVertexNormals();
+    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).metalness = 1.0;
+    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).color = new THREE.Color(0xf0e5f6);
+  }
+})
 hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 36, 1);
 const hoboBaseMaterial = new THREE.MeshStandardMaterial({
@@ -235,8 +276,13 @@ const hobo = new THREE.Object3D()
 hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
 scene.add(hobo);
-
 hobo.position.set(0, 0, -10);
+
+// Dome
+const domeModel = await gltfLoader.loadAsync('res/models/misc/Dome 2.glb')
+const dome = domeModel.scene;
+dome.position.y -= 0.5;
+scene.add(dome)
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -251,11 +297,41 @@ document.addEventListener('click', (e) => {
 function gameUpdate() {
   // Rotate hobo model
   hobo.rotateY(0.02);
+
   // Rotate interaction rings for ads
   ads.forEach(ad => {
     ad._interactionRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     ad._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
+
+  // Rotate interaction rings for artworks
+  artworks.forEach(artwork => {
+    artwork._interactionRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    artwork._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
+  })
+
+  // Check for artowk interactions
+  if (GameState.PlayerState == "FREEROAM") {
+    artworks.forEach(artwork => {
+      let ip =  new THREE.Vector3();
+      artwork._interactionRing.getWorldPosition(ip);
+      if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.6) {
+        GameState.PlayerState = "INTERACTING"
+        GameState.interationTargetPosition.copy(ip)
+        PLAYER.motion.mousecapture = false;
+        PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
+        hud.modal.container.classList.add('appear-grow');
+        hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}` 
+      }
+    })
+  }
+
+  if (GameState.PlayerState == "INTERESTED") {
+    console.log(PLAYER.model.position.distanceTo(GameState.interationTargetPosition))
+    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 1.0) {
+      GameState.PlayerState = "FREEROAM"
+    }
+  }
 
   // Check for ad interations
   if (GameState.PlayerState == "FREEROAM") {
@@ -265,6 +341,8 @@ function gameUpdate() {
       if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.6) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
+        PLAYER.motion.mousecapture = false;
+        PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
         hud.modal.container.classList.add('appear-grow');
         hud.modal.content.innerText = `Welcome to Aarohi'22 sponsored by: ${ad._firmname}, they say: ${ad._message}` 
       }

@@ -47,6 +47,7 @@ export class Advert {
                 map: adTexture
             })
         )
+        banner.name = this._firmname;
         if (offset) {
             banner.position.copy(offset)
         }
