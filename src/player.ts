@@ -82,23 +82,23 @@ export class Player {
     initControls() {
         document.addEventListener("keydown", (e) => {
             switch (e.key) {
-                case "w":
+                case "w": case "W":
                     this.motion.forward = true;
                     this.animationState = "accelerating";
                     break;
-                case "a":
+                case "a": case "A":
                     this.motion.left = true;
                     break;
-                case "s":
+                case "s": case "S":
                     this.motion.reverse = true;
                     this.animationState = "decelerating";
                     break;
-                case "d":
+                case "d": case "D":
                     this.motion.right = true;
-            }
-
-            if (e.shiftKey) {
-                this.motion.speed = true;
+                    break;
+                case "Shift":
+                    this.motion.speed = true;
+                    break;
             }
         });
 
@@ -113,24 +113,22 @@ export class Player {
 
         document.addEventListener("keyup", (e) => {
             switch (e.key) {
-                case "w":
+                case "w": case "W":
                     this.motion.forward = false;
                     this.animationState = "idle";
                     break;
-                case "a":
+                case "a": case "a":
                     this.motion.left = false;
                     break;
-                case "s":
+                case "s": case "S":
                     this.motion.reverse = false;
                     this.animationState = "idle";
                     break;
-                case "d":
+                case "d": case "D":
                     this.motion.right = false;
                     break;
-            }
-
-            if (e.shiftKey) {
-                this.motion.speed = false;
+                case "Shift":
+                    this.motion.speed = false;
             }
         });
 
