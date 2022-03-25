@@ -34,7 +34,6 @@ const hud = {
     a: document.querySelector<HTMLButtonElement>('#a')!,
     s: document.querySelector<HTMLButtonElement>('#s')!,
     d: document.querySelector<HTMLButtonElement>('#d')!,
-    mouseCapture: document.querySelector<HTMLButtonElement>('#capture')!
   },
 }
 
@@ -88,17 +87,6 @@ PLAYER.camera.position.set(0, 1, 0);
   hud.controls.d.addEventListener(e, (_) => { PLAYER.motion.right = false; });
 });
 
-hud.controls.mouseCapture.addEventListener('click', (_) => {
-  PLAYER.motion.mousecapture = !PLAYER.motion.mousecapture;
-  hud.controls.mouseCapture.innerText = "Press C to stop";
-})
-
-document.addEventListener('keypress', (e) => {
-  if (e.key == 'c') {
-    hud.controls.mouseCapture.innerText = "Start Mouse Capture";
-  }
-})
-
 // Clock to keep track of time
 const worldClock = new THREE.Clock();
 
@@ -119,7 +107,7 @@ const GameState = {
   interationTargetPosition: new THREE.Vector3(0, 0, 0),
 }
 
-hud.modal.closeButtom.addEventListener('click', (e) => {
+hud.modal.closeButtom.addEventListener('click', (_) => {
   hud.modal.container.classList.remove('appear-grow');
   GameState.PlayerState = "INTERESTED";
 })
@@ -233,7 +221,7 @@ const hedgeBumpTexture = await textureLoader.loadAsync('res/textures/hedge/heigh
 const hedgeAOTexture = await textureLoader.loadAsync('res/textures/hedge/ao.jpg');
 const hedgeRoughnessTexture = await textureLoader.loadAsync('res/textures/hedge/roughness.jpg');
 const hedge = new THREE.Mesh(
-  new THREE.TorusBufferGeometry(50, 1, 12, 120),
+  new THREE.TorusBufferGeometry(50, 1, 30, 120),
   new THREE.MeshStandardMaterial({
     map: hedgeTexture,
     normalMap: hedgeNormalTexture,
@@ -338,7 +326,7 @@ function gameUpdate() {
     ads.forEach(ad => {
       let ip =  new THREE.Vector3();
       ad._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.6) {
+      if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.2) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
