@@ -272,6 +272,38 @@ const dome = domeModel.scene;
 dome.position.y -= 0.5;
 scene.add(dome)
 
+// Showcase stage for sponsors
+const showcase = new THREE.Object3D();
+const showcaseStageMaterial = hoboBaseMaterial;
+const showcasePlatform = new THREE.Mesh(
+  new THREE.BoxBufferGeometry(8, 0.3, 4),
+  showcaseStageMaterial
+);
+showcase.add(showcasePlatform);
+
+const showcaseVideo = document.createElement('video');
+showcaseVideo.src = "res/media/Ryotsu The Magician.mp4";
+document.addEventListener('load', (_) => {
+  showcaseVideo.play();
+  showcaseVideo.loop = true;
+})
+const showcaseScreenGeometry = new THREE.PlaneBufferGeometry(4, 2);
+const showcaseScreenTexture = new THREE.VideoTexture(showcaseVideo);
+const showcaseScreen = new THREE.Mesh(
+  showcaseScreenGeometry,
+  new THREE.MeshBasicMaterial({
+    map: showcaseScreenTexture,
+    side: THREE.DoubleSide,
+  })
+)
+showcaseScreen.translateY(1.5);
+showcaseScreen.rotateY(-Math.PI);
+showcaseScreen.name = "showcase-screen";
+showcase.add(showcaseScreen);
+
+scene.add(showcase);
+showcase.position.set(0, 0, 5);
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -280,6 +312,14 @@ document.addEventListener('click', (e) => {
   raycaster.setFromCamera(mousePointer, PLAYER.camera);
   const intersects = raycaster.intersectObjects(scene.children, true);
   console.log(intersects);
+
+  if (intersects[0].object.name == "showcase-screen") {
+    if (showcaseVideo.paused || showcaseVideo.currentTime == 0) {
+      showcaseVideo.play();
+    } else {
+      showcaseVideo.pause();
+    }
+  }
 })
 
 function gameUpdate() {
@@ -328,6 +368,7 @@ function gameUpdate() {
       ad._interactionRing.getWorldPosition(ip);
       if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.2) {
         GameState.PlayerState = "INTERACTING"
+        PLAYER.animationState = "idle";
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
         PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
