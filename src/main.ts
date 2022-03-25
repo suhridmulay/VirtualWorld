@@ -17,7 +17,7 @@ import { Advert } from './advert';
 import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 
-import * as URLs from './URLS.json';
+// import * as URLs from './URLS.json';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
@@ -317,7 +317,7 @@ const showcasePlatform = new THREE.Mesh(
 showcase.add(showcasePlatform);
 
 const showcaseVideo = document.createElement('video');
-let videoSource =  'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
+let videoSource = 'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
 if (Hls.isSupported()) {
   let hls = new Hls();
   hls.loadSource(videoSource);
