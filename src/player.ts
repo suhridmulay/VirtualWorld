@@ -152,6 +152,8 @@ export class Player {
 
         document.addEventListener('mouseup', () => {
             this.motion.mousecapture = false;
+            this.motion.mouseNormalX = 0;
+            this.motion.mouseNormalY = 0;
         })
     }
 

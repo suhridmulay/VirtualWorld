@@ -15,6 +15,9 @@ const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
 import { Advert } from './advert';
 import { Artwork } from './artowrk';
+import Hls from 'hls.js';
+
+import * as URLS from './URLS.json';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
@@ -132,8 +135,8 @@ const renderPass = new RenderPass(scene, PLAYER.camera);
 composer.addPass(renderPass);
 
 // Add bloom pass
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.5, 0.98);
-composer.addPass(bloomPass);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.5, 0.98);
+// composer.addPass(bloomPass);
 
 // Add anti-aliasing pass
 // Only when the we are operating at 1:1 pixel ratio. Otherwise, it's pretty useless
@@ -282,12 +285,17 @@ const showcasePlatform = new THREE.Mesh(
 showcase.add(showcasePlatform);
 
 const showcaseVideo = document.createElement('video');
-showcaseVideo.src = "res/media/Ryotsu The Magician.mp4";
+let videoSource = 'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
+if (Hls.isSupported()) {
+  let hls = new Hls();
+  hls.loadSource(videoSource);
+  hls.attachMedia(showcaseVideo)
+}
+// showcaseVideo.src = "res/media/tj.mp4";
 document.addEventListener('load', (_) => {
   showcaseVideo.play();
-  showcaseVideo.loop = true;
 })
-const showcaseScreenGeometry = new THREE.PlaneBufferGeometry(4, 2);
+const showcaseScreenGeometry = new THREE.PlaneBufferGeometry(6, 3);
 const showcaseScreenTexture = new THREE.VideoTexture(showcaseVideo);
 const showcaseScreen = new THREE.Mesh(
   showcaseScreenGeometry,
