@@ -184,25 +184,56 @@ function loadLights() {
 loadLights();
 
 // Ads
+const adBasePath = 'res/logos/';
+const adURLs = [
+  {
+    path: 'cu-logo.png',
+    firm: 'Crypto University',
+    message: 'Crypto University'
+  },
+  {
+    path: 'dharampeth-logo.png',
+    firm: 'Dharampeth Mahila Bank',
+    message: 'Dharampeth Mahila Bank',
+  },
+  {
+    path: 'empower-logo.png',
+    firm: 'empower',
+    message: 'empower',
+  },
+  {
+    path: 'made-easy-logo.png',
+    firm: 'made-easy',
+    message: 'made-easy',
+  },
+  {
+    path: 'nest-and-spoon-logo.png',
+    firm: 'nest and spoon',
+    message: 'nest and spoon'
+  },
+  {
+    path: 'wcl-logo.png',
+    firm: 'WCL',
+    message: 'WCL'
+  }
+]
 let ads: Advert[] = []
+let adZ = -15;
 const adPanel = await gltfLoader.loadAsync('res/models/misc/Spons Panel.glb');
 adPanel.scene.scale.setScalar(0.001);
-const adTexture = await textureLoader.loadAsync('res/backgrounds/vnit_pan_2.png');
-const ad = new Advert("Your Firm", "Your Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
-ads.push(ad);
-scene.add(ad._model);
-ad._model.position.set(10, 0, -5);
-ad._model.rotateY(-Math.PI/2)
-const ad2 = new Advert("Their Firm", "Their Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
-ads.push(ad2);
-scene.add(ad2._model);
-ad2._model.position.set(10, 0, 0);
-ad2._model.rotateY(-Math.PI/2)
-const ad3 = new Advert("My Firm", "My Message", adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
-ads.push(ad3);
-scene.add(ad3._model);
-ad3._model.position.set(10, 0, 5);
-ad3._model.rotateY(-Math.PI/2)
+for (let adv of adURLs)  {
+  const adTexture = await textureLoader.loadAsync(`${adBasePath}${adv.path}`);
+  const ad = new Advert(adv.firm, adv.message, adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
+  ads.push(ad)
+  scene.add(ad._model)
+  ad._model.rotateY(-Math.PI/2)
+  ad._model.position.set(
+    10,
+    0,
+    adZ
+  )
+  adZ += 5;
+}
 
 // Artwork
 let artworks: Artwork[] = []
@@ -267,11 +298,12 @@ const hobo = new THREE.Object3D()
 hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
 scene.add(hobo);
-hobo.position.set(0, 0, -10);
+hobo.position.set(0, 0, -20);
 
 // Dome
 const domeModel = await gltfLoader.loadAsync('res/models/misc/Dome 2.glb')
 const dome = domeModel.scene;
+dome.scale.setScalar(1.5)
 dome.position.y -= 0.5;
 scene.add(dome)
 
@@ -310,7 +342,7 @@ showcaseScreen.name = "showcase-screen";
 showcase.add(showcaseScreen);
 
 scene.add(showcase);
-showcase.position.set(0, 0, 5);
+showcase.position.set(0, 0, 15);
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {

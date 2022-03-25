@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const bannerGeometry = new THREE.PlaneBufferGeometry(2, 1, 1, 1);
+const bannerGeometry = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 
 const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 12, 12)
 const interactionRingMatrial = new THREE.MeshBasicMaterial({
@@ -44,7 +44,8 @@ export class Advert {
         const banner = new THREE.Mesh(
             bannerGeometry,
             new THREE.MeshBasicMaterial({
-                map: adTexture
+                map: adTexture,
+                transparent: true
             })
         )
         banner.name = this._firmname;

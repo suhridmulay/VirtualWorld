@@ -28,7 +28,6 @@
   grid-template-rows: 1fr 5fr 1fr;
   font-family: 'Roboto';
   color: white;
-  text-shadow: 0 0 5px black;
 }
 
 .hud > * {
