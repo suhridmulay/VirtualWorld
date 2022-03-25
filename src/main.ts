@@ -17,7 +17,7 @@ import { Advert } from './advert';
 import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 
-import * as URLS from './URLS.json';
+import * as URLs from './URLS.json';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
@@ -136,7 +136,7 @@ composer.addPass(renderPass);
 
 // Add bloom pass
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.5, 0.98);
-// composer.addPass(bloomPass);
+composer.addPass(bloomPass);
 
 // Add anti-aliasing pass
 // Only when the we are operating at 1:1 pixel ratio. Otherwise, it's pretty useless
@@ -159,7 +159,7 @@ scene.add(groundPlane);
 const skyball = new THREE.Mesh(
   new THREE.SphereBufferGeometry(100, 40, 40),
   new THREE.MeshBasicMaterial({
-    map: textureLoader.load('res/backgrounds/vnit_pan_2.png'),
+    color: 0x87ceeb,
     fog: true,
     side: THREE.BackSide
   })
@@ -237,10 +237,10 @@ for (let adv of adURLs)  {
 
 // Artwork
 let artworks: Artwork[] = []
-const artworkPanel = await gltfLoader.loadAsync('res/models/misc/Display Panels.glb');
-artworkPanel.scene.scale.setScalar(0.001);
+const artworkPanel = await fbxLoader.loadAsync('res/models/misc/Display Panels.fbx');
+artworkPanel.scale.setScalar(0.001);
 const artowrkTexture = await textureLoader.loadAsync('res/backgrounds/vnit_pan_2.png');
-const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel.scene, new THREE.Vector3(3.1875, 1.5, -1));
+const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artworks.push(artowrk)
 scene.add(artowrk._model);
 artowrk._model.position.set(-10, 0, 0);
@@ -275,7 +275,7 @@ const concreteNormalTexture = await textureLoader.loadAsync('res/textures/concre
 const concreteBumpTexture = await textureLoader.loadAsync('res/textures/concrete/height.png')
 const concreteAOTexture = await textureLoader.loadAsync('res/textures/concrete/ao.jpg')
 const concreteRoughnessTexture = await textureLoader.loadAsync('res/textures/concrete/roughness.jpg')
-const hoboModel = await gltfLoader.loadAsync('res/models/misc/hobo.glb');
+const hoboModel = await gltfLoader.loadAsync('res/models/misc/Hobo.glb');
 hoboModel.scene.traverse(c => {
   if (c instanceof THREE.Mesh) {
     (c.geometry as THREE.BufferGeometry).computeVertexNormals();
@@ -317,7 +317,7 @@ const showcasePlatform = new THREE.Mesh(
 showcase.add(showcasePlatform);
 
 const showcaseVideo = document.createElement('video');
-let videoSource = 'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
+let videoSource =  'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
 if (Hls.isSupported()) {
   let hls = new Hls();
   hls.loadSource(videoSource);
@@ -332,6 +332,7 @@ const showcaseScreenTexture = new THREE.VideoTexture(showcaseVideo);
 const showcaseScreen = new THREE.Mesh(
   showcaseScreenGeometry,
   new THREE.MeshBasicMaterial({
+    color: 0xfafafa,
     map: showcaseScreenTexture,
     side: THREE.DoubleSide,
   })

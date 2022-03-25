@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const bannerGeometry = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 
-const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 12, 12)
+const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 72, 36)
 const interactionRingMatrial = new THREE.MeshBasicMaterial({
     color: 'gold'
 })

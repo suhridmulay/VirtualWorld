@@ -5,9 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/VirtualWorld/assets/favicon.17e50649.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
-    <script type="module" crossorigin src="/VirtualWorld/assets/index.fe394a63.js"></script>
-    <link rel="modulepreload" href="/VirtualWorld/assets/vendor.6d7cb166.js">
-    <link rel="stylesheet" href="/VirtualWorld/assets/index.1391b43d.css">
+    <script type="module" crossorigin src="/VirtualWorld/assets/index.ad0a40d2.js"></script>
+    <link rel="modulepreload" href="/VirtualWorld/assets/vendor.95e0301d.js">
+    <link rel="stylesheet" href="/VirtualWorld/assets/index.dd1acb3e.css">
   </head>
   <body>
     <div id="app"></div>
@@ -16,7 +16,10 @@
       <div class="location" id="location"></div>
       <div class="score"></div>
       <div class="life"></div>
-      <div class="modal" id="modal"></div>
+      <div class="modal" id="modal">
+        <div class="content" id="modal-content"></div>
+        <div class="close-button" id="modal-close-button">x</div>
+      </div>
       <div class="right-bar"></div>
       <div class="bottom-left"></div>
       <div class="bottom-middle"></div>
@@ -26,9 +29,11 @@
           <button class="a" id="a">A</button>
           <button class="s" id="s">S</button>
           <button class="d" id="d">D</button>
-          <button class="cap" id="capture">Mouse Capture</button>
         </div>
       </div>
+    </div>
+    <div class="hidden" id="hidden">
+      
     </div>
     
   </body>
