@@ -31,11 +31,11 @@ export class MediaPlatform {
         this._mediaName = mediaName;
         this._controlRing = new THREE.Mesh(
             controlRingGeometry,
-            controlRingMaterial
+            controlRingMaterial.clone()
         )
         this._controlRing.position.set(0, 0.5, -3);
         this._controlRing.rotateX(-Math.PI/2);
-        this._screen.position.set(0, 1, 0);
+        this._screen.position.set(0, 2, 0);
         this._screen.rotateY(Math.PI);
         this._model.add(this._platformMesh)
         this._model.add(this._screen);

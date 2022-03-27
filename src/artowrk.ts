@@ -11,6 +11,8 @@ export class Artwork {
     _model: THREE.Object3D
     _interactionRing: THREE.Object3D;
 
+    _banner: THREE.Object3D;
+
     _firmname: string;
     _message: string;
 
@@ -35,6 +37,7 @@ export class Artwork {
                 ((c as THREE.Mesh).material as THREE.Material).fog = false;
             }
         })
+        this._banner = new THREE.Object3D();
     }
 
     update() {
@@ -55,6 +58,15 @@ export class Artwork {
         if (offset) {
             banner.position.copy(offset)
         }
-        this._model.add(banner)
+        banner.name = this._firmname;
+        this._banner = banner;
+        this._model.add(this._banner);
+    }
+
+    // TODO
+    changeTo(texture: THREE.Texture) {
+        console.log(this._banner);
+        ((this._banner as THREE.Mesh).material as THREE.MeshBasicMaterial).map = texture;
+        ((this._banner as THREE.Mesh).material as THREE.MeshBasicMaterial).needsUpdate = true;
     }
 }

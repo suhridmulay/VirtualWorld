@@ -136,7 +136,6 @@ export class Player {
             if (this.motion.mousecapture) {
                 const normalisedX = ( e.clientX / window.innerWidth ) * 2 - 1;
                 const normalisedY = - ( e.clientY / window.innerHeight ) * 2 + 1;
-                console.log({normalisedX, normalisedY});
                 this.motion.mouseNormalX = -normalisedX;
                 this.motion.mouseNormalY = normalisedY;
             }

@@ -50,6 +50,7 @@ export class Advert {
             bannerGeometry,
             new THREE.MeshBasicMaterial({
                 map: adTexture,
+                color: 0xf0f0f0,
                 transparent: true
             })
         )

@@ -375,13 +375,14 @@ const kochikameVideo = document.createElement('video');
 kochikameVideo.src = 'res/media/Ryotsu The Magician.mp4';
 const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, kochikameVideo)
 mediPlatforms.push(mediaPlatform);
-mediaPlatform._model.translateZ(5);
+mediaPlatform._model.translateZ(15);
+mediaPlatform._model.translateX(-5);
 scene.add(mediaPlatform._model)
 
 const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
 mediPlatforms.push(liveVideoPlatform)
 scene.add(liveVideoPlatform._model)
-liveVideoPlatform._model.position.set(0, 0, 15);
+liveVideoPlatform._model.position.set(5, 0, 15);
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -391,14 +392,6 @@ document.addEventListener('click', (e) => {
   raycaster.setFromCamera(mousePointer, PLAYER.camera);
   const intersects = raycaster.intersectObjects(scene.children, true);
   console.log(intersects);
-
-  if (intersects[0].object.name == "showcase-screen") {
-    if (showcaseVideo.paused || showcaseVideo.currentTime == 0) {
-      showcaseVideo.play();
-    } else {
-      showcaseVideo.pause();
-    }
-  }
 })
 
 let activeMediaPlatform: MediaPlatform | undefined = undefined;
