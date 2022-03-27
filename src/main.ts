@@ -16,6 +16,7 @@ const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 import { Advert } from './advert';
 import { Artwork } from './artowrk';
 import Hls from 'hls.js';
+import { MediaPlatform } from './MediaPlatform';
 
 // import * as URLs from './URLS.json';
 
@@ -290,7 +291,7 @@ for (let i = 0; i < 100; i++) {
   const offset = (Math.random() * 2 - 1) * 5
   transfromDummy.position.set(
     (R + offset) * Math.cos(theta),
-    0,
+    0.5 * 0.5 * Math.random(),
     (R + offset) * Math.sin(theta)
   )
   transfromDummy.scale.setScalar(Math.random() * 0.5);
@@ -391,6 +392,16 @@ showcase.traverse(c => {
   }
 })
 
+// Media Platforms
+const mediPlatforms: MediaPlatform[] = [];
+const mediaPlatformBase = showcasePlatform.clone();
+const kochikameVideo = document.createElement('video');
+kochikameVideo.src = 'res/media/Ryotsu The Magician.mp4';
+const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, kochikameVideo)
+mediPlatforms.push(mediaPlatform);
+mediaPlatform._model.translateZ(5);
+scene.add(mediaPlatform._model)
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -409,7 +420,12 @@ document.addEventListener('click', (e) => {
   }
 })
 
+let activeMediaPlatform: MediaPlatform | undefined = undefined;
+
 function gameUpdate() {
+
+  const up = new THREE.Vector3(0, 1, 0);
+
   // Rotate hobo model
   hobo.rotateY(0.02);
 
@@ -425,12 +441,28 @@ function gameUpdate() {
     artwork._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
 
-  // Check for artowk interactions
+  // Rotate interaction rings for media platforms
+  mediPlatforms.forEach(mp => {
+    mp._controlRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    mp._controlRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
+  })
+
   if (GameState.PlayerState == "FREEROAM") {
+    let cp = new THREE.Vector3()
+    mediPlatforms.forEach(mp => {
+      mp._controlRing.getWorldPosition(cp);
+      if (cp.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.65) {
+        GameState.PlayerState = "INTERESTED";
+        GameState.interationTargetPosition = cp;
+        activeMediaPlatform = mp;
+        activeMediaPlatform.interactionStart();
+      }
+    })
+
     artworks.forEach(artwork => {
       let ip =  new THREE.Vector3();
       artwork._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.6) {
+      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.6) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
@@ -439,17 +471,7 @@ function gameUpdate() {
         hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}` 
       }
     })
-  }
 
-  if (GameState.PlayerState == "INTERESTED") {
-    console.log(PLAYER.model.position.distanceTo(GameState.interationTargetPosition))
-    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 1.0) {
-      GameState.PlayerState = "FREEROAM"
-    }
-  }
-
-  // Check for ad interations
-  if (GameState.PlayerState == "FREEROAM") {
     ads.forEach(ad => {
       let ip =  new THREE.Vector3();
       ad._interactionRing.getWorldPosition(ip);
@@ -466,9 +488,11 @@ function gameUpdate() {
   }
 
   if (GameState.PlayerState == "INTERESTED") {
-    console.log(PLAYER.model.position.distanceTo(GameState.interationTargetPosition))
     if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 1.0) {
       GameState.PlayerState = "FREEROAM"
+      if (activeMediaPlatform) {
+        activeMediaPlatform.interactionPause();
+      }
     }
   }
 }
