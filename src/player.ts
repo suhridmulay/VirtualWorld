@@ -82,18 +82,18 @@ export class Player {
     initControls() {
         document.addEventListener("keydown", (e) => {
             switch (e.key) {
-                case "w": case "W":
+                case "w": case "W": case "ArrowUp":
                     this.motion.forward = true;
                     this.animationState = "accelerating";
                     break;
-                case "a": case "A":
+                case "a": case "A": case "ArrowLeft":
                     this.motion.left = true;
                     break;
-                case "s": case "S":
+                case "s": case "S": case "ArrowDown":
                     this.motion.reverse = true;
                     this.animationState = "decelerating";
                     break;
-                case "d": case "D":
+                case "d": case "D": case "ArrowRight":
                     this.motion.right = true;
                     break;
                 case "Shift":
@@ -104,7 +104,7 @@ export class Player {
 
         document.addEventListener('keypress', (e) => {
             switch (e.key) {
-                case "c":
+                case "c": case "C":
                     this.motion.mousecapture = !this.motion.mousecapture;
                     this.motion.mouseNormalX = 0;
                     this.motion.mouseNormalY = 0;
@@ -113,18 +113,18 @@ export class Player {
 
         document.addEventListener("keyup", (e) => {
             switch (e.key) {
-                case "w": case "W":
+                case "w": case "W": case "ArrowUp":
                     this.motion.forward = false;
                     this.animationState = "idle";
                     break;
-                case "a": case "A":
+                case "a": case "A": case "ArrowLeft":
                     this.motion.left = false;
                     break;
-                case "s": case "S":
+                case "s": case "S": case "ArrowDown":
                     this.motion.reverse = false;
                     this.animationState = "idle";
                     break;
-                case "d": case "D":
+                case "d": case "D": case "ArrowRight":
                     this.motion.right = false;
                     break;
                 case "Shift":
