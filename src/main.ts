@@ -456,7 +456,7 @@ function gameUpdate() {
     artworks.forEach(artwork => {
       let ip = new THREE.Vector3();
       artwork._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.7d) {
+      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.7) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
