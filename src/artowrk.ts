@@ -23,6 +23,21 @@ export class Artwork {
 
         this._model = new THREE.Object3D()
         this.addBanner(adTexture, offset)
+
+        const canvas = document.createElement('canvas');
+        const text = firmName;
+        canvas.width = 700;
+        canvas.height = 100;
+        const context = canvas.getContext('2d')!;
+        context.fillStyle = "black"
+        context.fillRect(0, 0, 700, 100)
+        context.fill();
+        context.font = "50px sans-serif"
+        const textsize = context.measureText(text)
+        context.fillStyle = "white"
+        context.fillText(text, (700 - textsize.width) / 2, 50)
+        const textTexture = new THREE.CanvasTexture(canvas)
+        this.addBoard(textTexture);
         this.addPanel(panelModel)
         const interactionRing = new THREE.Mesh(
             interactionRingGeometry,
@@ -42,6 +57,19 @@ export class Artwork {
 
     update() {
 
+    }
+
+    async addBoard(texture: THREE.Texture) {
+        let board = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry(7, 1),
+            new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+            })
+        )
+        this._model.add(board);
+        board.translateY(4);
+        board.translateX(3);
     }
 
     async addPanel(panel: THREE.Object3D) {

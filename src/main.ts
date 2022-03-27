@@ -173,14 +173,14 @@ scene.add(skyball);
 
 
 function loadLights() {
-  const ambientLight = new THREE.AmbientLight(0x404040, 4);
+  const ambientLight = new THREE.AmbientLight(0x404040, 10);
   scene.add(ambientLight);
   const dirLight = new THREE.DirectionalLight(0xffffff, 8);
   dirLight.color.setHSL(0.5, 0.3, 0.2);
   dirLight.position.set(0, 1.75, 0);
-  dirLight.position.multiplyScalar(40);
+  dirLight.position.multiplyScalar(5);
   scene.add(dirLight);
-  const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 2);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
   hemiLight.color.setHSL(0.3, 0.5, 0.8);
   hemiLight.groundColor.setHSL(0.6, 0.3, 0.4);
   scene.add(hemiLight);
@@ -243,7 +243,7 @@ for (let adv of adURLs)  {
 let artworks: Artwork[] = []
 const artworkPanel = await fbxLoader.loadAsync('res/models/misc/Display Panels.fbx');
 artworkPanel.scale.setScalar(0.001);
-const artowrkTexture = await textureLoader.loadAsync('res/backgrounds/vnit_pan_2.png');
+const artowrkTexture = grassNormal;
 const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artworks.push(artowrk)
 scene.add(artowrk._model);
@@ -302,6 +302,7 @@ scene.add(bushInstances);
 
 
 // Hobo
+const hobo = new THREE.Object3D()
 const concreteTexture = await textureLoader.loadAsync('res/textures/concrete/base.jpg')
 const concreteNormalTexture = await textureLoader.loadAsync('res/textures/concrete/normal.jpg')
 const concreteBumpTexture = await textureLoader.loadAsync('res/textures/concrete/height.png')
@@ -312,9 +313,11 @@ hoboModel.scene.traverse(c => {
   if (c instanceof THREE.Mesh) {
     (c.geometry as THREE.BufferGeometry).computeVertexNormals();
     ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).metalness = 1.0;
-    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).color = new THREE.Color(0xf0e5f6);
+    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).roughness = 0.0;
+    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).color = new THREE.Color(0x0f0a0b);
   }
 })
+
 hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 36, 1);
 const hoboBaseMaterial = new THREE.MeshStandardMaterial({
@@ -322,11 +325,11 @@ const hoboBaseMaterial = new THREE.MeshStandardMaterial({
   normalMap: concreteNormalTexture,
   bumpMap: concreteBumpTexture,
   aoMap: concreteAOTexture,
-  roughness: 0.5,
+  roughness: 0.8,
+  metalness: 0.0,
   roughnessMap: concreteRoughnessTexture
 })
 const hoboBase = new THREE.Mesh(hoboBaseGeometry, hoboBaseMaterial);
-const hobo = new THREE.Object3D()
 hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
 scene.add(hobo);

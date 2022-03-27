@@ -20,7 +20,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: moving-gradient 5000ms ease-in-out 0 infinite forwards;
+  animation: moving-gradient 2000ms ease-in-out infinite;
 }
 
 @keyframes moving-gradient {
