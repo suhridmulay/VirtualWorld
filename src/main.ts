@@ -26,7 +26,7 @@ const playerModelUrl = 'res/models/avatar/source/eve.fbx';
 const app = document.querySelector<HTMLDivElement>('#app')!
 const preloader = document.querySelector<HTMLDivElement>('#preloader')!
 
-let contentLoaded = false;
+// let contentLoaded = false;
 
 const hud = {
   time: document.querySelector<HTMLDivElement>('#time')!,
@@ -493,7 +493,7 @@ window.addEventListener('resize', () => {
   PLAYER.camera.updateProjectionMatrix();
 })
 
-contentLoaded = true;
+// contentLoaded = true;
 preloader.style.display = "none";
 
 animate();
