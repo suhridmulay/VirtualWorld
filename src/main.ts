@@ -366,34 +366,10 @@ if (Hls.isSupported()) {
   hls.loadSource(videoSource);
   hls.attachMedia(showcaseVideo)
 }
-// showcaseVideo.src = "res/media/tj.mp4";
-document.addEventListener('load', (_) => {
-  showcaseVideo.play();
-})
-const showcaseScreenGeometry = new THREE.PlaneBufferGeometry(6, 3);
-const showcaseScreenTexture = new THREE.VideoTexture(showcaseVideo);
-const showcaseScreen = new THREE.Mesh(
-  showcaseScreenGeometry,
-  new THREE.MeshBasicMaterial({
-    color: 0xfafafa,
-    map: showcaseScreenTexture,
-    side: THREE.DoubleSide,
-  })
-)
-showcaseScreen.translateY(1.5);
-showcaseScreen.rotateY(-Math.PI);
-showcaseScreen.name = "showcase-screen";
-showcase.add(showcaseScreen);
-scene.add(showcase);
-showcase.position.set(0, 0, 15);
-showcase.traverse(c => {
-  if (c instanceof THREE.Mesh) {
-    ((c as THREE.Mesh).material as THREE.Material).fog = false;
-  }
-})
 
 // Media Platforms
 const mediPlatforms: MediaPlatform[] = [];
+
 const mediaPlatformBase = showcasePlatform.clone();
 const kochikameVideo = document.createElement('video');
 kochikameVideo.src = 'res/media/Ryotsu The Magician.mp4';
@@ -401,6 +377,11 @@ const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, kochikam
 mediPlatforms.push(mediaPlatform);
 mediaPlatform._model.translateZ(5);
 scene.add(mediaPlatform._model)
+
+const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
+mediPlatforms.push(liveVideoPlatform)
+scene.add(liveVideoPlatform._model)
+liveVideoPlatform._model.position.set(0, 0, 15);
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -452,8 +433,9 @@ function gameUpdate() {
     mediPlatforms.forEach(mp => {
       mp._controlRing.getWorldPosition(cp);
       if (cp.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.65) {
+        console.log(`Media Platform ${mp._mediaName}`)
         GameState.PlayerState = "INTERESTED";
-        GameState.interationTargetPosition = cp;
+        GameState.interationTargetPosition.copy(cp);
         activeMediaPlatform = mp;
         activeMediaPlatform.interactionStart();
       }
@@ -492,6 +474,8 @@ function gameUpdate() {
       GameState.PlayerState = "FREEROAM"
       if (activeMediaPlatform) {
         activeMediaPlatform.interactionPause();
+        activeMediaPlatform = undefined;
+        GameState.interationTargetPosition = new THREE.Vector3();
       }
     }
   }

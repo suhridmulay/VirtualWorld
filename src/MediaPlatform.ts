@@ -47,14 +47,19 @@ export class MediaPlatform {
     }
 
     interactionStart() {
+        console.log(`Current video paused: ${this._video.paused}`)
         if (this._video.paused || this._video.currentTime == 0) {
             this._video.play();
+            ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
+            ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
         }
     }
 
     interactionPause() {
         if (!this._video.paused) {
             this._video.pause();
+            ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('gold');
+            ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
         }
     }
 }
