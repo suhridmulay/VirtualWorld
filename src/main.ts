@@ -17,6 +17,7 @@ import { Advert } from './advert';
 import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
+import { Vector3 } from 'three';
 
 // import * as URLs from './URLS.json';
 
@@ -71,6 +72,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.sortObjects = true;
 app.appendChild(renderer.domElement);
+
+function taxicabDistance(v1: THREE.Vector3, v2: THREE.Vector3){
+  let d = Math.abs(v1.x - v2.x) + Math.abs(v1.y - v2.y) + Math.abs(v1.z - v2.z)
+  return d
+}
+
 
 // Initialise an effect composer
 const composer = new EffectComposer(renderer);
@@ -173,7 +180,7 @@ scene.add(skyball);
 
 
 function loadLights() {
-  const ambientLight = new THREE.AmbientLight(0x404040, 10);
+  const ambientLight = new THREE.AmbientLight(0x404040, 8);
   scene.add(ambientLight);
   const dirLight = new THREE.DirectionalLight(0xffffff, 8);
   dirLight.color.setHSL(0.5, 0.3, 0.2);
@@ -225,12 +232,12 @@ let ads: Advert[] = []
 let adZ = -15;
 const adPanel = await gltfLoader.loadAsync('res/models/misc/Spons Panel.glb');
 adPanel.scene.scale.setScalar(0.001);
-for (let adv of adURLs)  {
+for (let adv of adURLs) {
   const adTexture = await textureLoader.loadAsync(`${adBasePath}${adv.path}`);
   const ad = new Advert(adv.firm, adv.message, adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
   ads.push(ad)
   scene.add(ad._model)
-  ad._model.rotateY(-Math.PI/2)
+  ad._model.rotateY(-Math.PI / 2)
   ad._model.position.set(
     10,
     0,
@@ -269,7 +276,7 @@ const hedge = new THREE.Mesh(
     roughnessMap: hedgeRoughnessTexture
   })
 )
-hedge.rotateX(-Math.PI/2)
+hedge.rotateX(-Math.PI / 2)
 scene.add(hedge)
 
 // Vegetation
@@ -317,7 +324,6 @@ hoboModel.scene.traverse(c => {
     ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).color = new THREE.Color(0x0f0a0b);
   }
 })
-
 hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 36, 1);
 const hoboBaseMaterial = new THREE.MeshStandardMaterial({
@@ -352,6 +358,14 @@ dome.traverse(c => {
 dome.scale.setScalar(1.5)
 dome.position.y -= 0.5;
 scene.add(dome)
+
+//oat
+const oat = new THREE.Object3D()
+const otaModel = await gltfLoader.loadAsync('res/models/misc/OAT.glb')
+oat.add(otaModel.scene)
+oat.position.y -= 0.01
+scene.add(oat)
+
 
 // Showcase stage for sponsors or movies
 // Livestream jama lo bas, This thing is gold
@@ -407,22 +421,24 @@ function gameUpdate() {
   hobo.rotateY(0.02);
 
   // Rotate interaction rings for ads
+  /*
   ads.forEach(ad => {
-    ad._interactionRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    ad._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     ad._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
 
   // Rotate interaction rings for artworks
   artworks.forEach(artwork => {
-    artwork._interactionRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    artwork._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     artwork._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
 
   // Rotate interaction rings for media platforms
   mediPlatforms.forEach(mp => {
-    mp._controlRing.rotation.x = -Math.PI/2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    mp._controlRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     mp._controlRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
+  */
 
   if (GameState.PlayerState == "FREEROAM") {
     let cp = new THREE.Vector3()
@@ -438,35 +454,35 @@ function gameUpdate() {
     })
 
     artworks.forEach(artwork => {
-      let ip =  new THREE.Vector3();
+      let ip = new THREE.Vector3();
       artwork._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.6) {
+      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.7d) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
         PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
         hud.modal.container.classList.add('appear-grow');
-        hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}` 
+        hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}`
       }
     })
 
     ads.forEach(ad => {
-      let ip =  new THREE.Vector3();
+      let ip = new THREE.Vector3();
       ad._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(new THREE.Vector3(0, 1, 0)).distanceTo(PLAYER.model.position) < 0.2) {
+      if (taxicabDistance(ip,PLAYER.model.position ) < 2) {
         GameState.PlayerState = "INTERACTING"
         PLAYER.animationState = "idle";
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
         PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
         hud.modal.container.classList.add('appear-grow');
-        hud.modal.content.innerText = `Welcome to Aarohi'22 sponsored by: ${ad._firmname}, they say: ${ad._message}` 
+        hud.modal.content.innerText = `Welcome to Aarohi'22 sponsored by: ${ad._firmname}, they say: ${ad._message}`
       }
     })
   }
 
   if (GameState.PlayerState == "INTERESTED") {
-    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 1.0) {
+    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 3.0) {
       GameState.PlayerState = "FREEROAM"
       if (activeMediaPlatform) {
         activeMediaPlatform.interactionPause();
@@ -474,6 +490,10 @@ function gameUpdate() {
         GameState.interationTargetPosition = new THREE.Vector3();
       }
     }
+  }
+
+  if (PLAYER.model.position.length() > 150) {
+    PLAYER.model.position.set(0, 0, 0); 
   }
 }
 

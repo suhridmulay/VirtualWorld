@@ -25,7 +25,7 @@ export class Artwork {
         this.addBanner(adTexture, offset)
 
         const canvas = document.createElement('canvas');
-        const text = firmName;
+        const text = 'T I M E L I N E';
         canvas.width = 700;
         canvas.height = 100;
         const context = canvas.getContext('2d')!;

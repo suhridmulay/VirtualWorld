@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 const bannerGeometry = new THREE.PlaneBufferGeometry(2, 1, 1, 1);
 
-const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 36, 72)
+const interactionRingGeometry = new THREE.TorusBufferGeometry(2, 0.05, 36, 4)
 const interactionRingMatrial = new THREE.MeshBasicMaterial({
-    color: 'gold'
+    color: 'orange'
 })
 
 export class Advert {
@@ -27,7 +27,8 @@ export class Advert {
             interactionRingMatrial
         )
         interactionRing.rotateX(-Math.PI / 2)
-        interactionRing.position.set(1.375, 0.5, 2);
+        interactionRing.rotateZ(Math.PI/4)
+        interactionRing.position.set(1.375, 0.0, 2);
         this._interactionRing = interactionRing;
         this._model.add(interactionRing)
         this._model.traverse(c => {
