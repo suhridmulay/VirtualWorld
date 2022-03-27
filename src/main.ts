@@ -23,6 +23,9 @@ import Hls from 'hls.js';
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
 
 const app = document.querySelector<HTMLDivElement>('#app')!
+const preloader = document.querySelector<HTMLDivElement>('#preloader')!
+
+let contentLoaded = false;
 
 const hud = {
   time: document.querySelector<HTMLDivElement>('#time')!,
@@ -187,32 +190,32 @@ loadLights();
 const adBasePath = 'res/logos/';
 const adURLs = [
   {
-    path: 'cu-logo.png',
+    path: 'chatur-ideas.png',
     firm: 'Crypto University',
     message: 'Crypto University'
   },
   {
-    path: 'dharampeth-logo.png',
+    path: 'mahila.png',
     firm: 'Dharampeth Mahila Bank',
     message: 'Dharampeth Mahila Bank',
   },
   {
-    path: 'empower-logo.png',
+    path: 'empower.png',
     firm: 'empower',
     message: 'empower',
   },
   {
-    path: 'made-easy-logo.png',
+    path: 'made-easy.png',
     firm: 'made-easy',
     message: 'made-easy',
   },
   {
-    path: 'nest-and-spoon-logo.png',
+    path: 'nest-amd-sppon.png',
     firm: 'nest and spoon',
     message: 'nest and spoon'
   },
   {
-    path: 'wcl-logo.png',
+    path: 'wcl.png',
     firm: 'WCL',
     message: 'WCL'
   }
@@ -268,6 +271,34 @@ const hedge = new THREE.Mesh(
 hedge.rotateX(-Math.PI/2)
 scene.add(hedge)
 
+// Vegetation
+const bushModel = await gltfLoader.loadAsync('res/models/props/bush.glb');
+const bush = bushModel.scene;
+bush.scale.setScalar(0.005);
+
+console.log(bush);
+
+const bushInstances = new THREE.InstancedMesh(
+  (bush.children[0].children[0] as THREE.Mesh).geometry,
+  (bush.children[0].children[0] as THREE.Mesh).material,
+  100
+)
+const R = 30;
+const transfromDummy = new THREE.Object3D();
+for (let i = 0; i < 100; i++) {
+  const theta = Math.random() * 2 * Math.PI;
+  const offset = (Math.random() * 2 - 1) * 5
+  transfromDummy.position.set(
+    (R + offset) * Math.cos(theta),
+    0,
+    (R + offset) * Math.sin(theta)
+  )
+  transfromDummy.scale.setScalar(Math.random() * 0.5);
+  transfromDummy.updateMatrix();
+  bushInstances.setMatrixAt(i, transfromDummy.matrix);
+}
+scene.add(bushInstances);
+
 
 // Hobo
 const concreteTexture = await textureLoader.loadAsync('res/textures/concrete/base.jpg')
@@ -299,15 +330,27 @@ hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
 scene.add(hobo);
 hobo.position.set(0, 0, -20);
+hobo.traverse(c => {
+  if (c instanceof THREE.Mesh) {
+    ((c as THREE.Mesh).material as THREE.Material).fog = false;
+  }
+})
+
 
 // Dome
 const domeModel = await gltfLoader.loadAsync('res/models/misc/Dome 2.glb')
 const dome = domeModel.scene;
+dome.traverse(c => {
+  if (c instanceof THREE.Mesh) {
+    ((c as THREE.Mesh).material as THREE.Material).fog = false;
+  }
+})
 dome.scale.setScalar(1.5)
 dome.position.y -= 0.5;
 scene.add(dome)
 
-// Showcase stage for sponsors
+// Showcase stage for sponsors or movies
+// Livestream jama lo bas, This thing is gold
 const showcase = new THREE.Object3D();
 const showcaseStageMaterial = hoboBaseMaterial;
 const showcasePlatform = new THREE.Mesh(
@@ -315,7 +358,6 @@ const showcasePlatform = new THREE.Mesh(
   showcaseStageMaterial
 );
 showcase.add(showcasePlatform);
-
 const showcaseVideo = document.createElement('video');
 let videoSource = 'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
 if (Hls.isSupported()) {
@@ -341,9 +383,13 @@ showcaseScreen.translateY(1.5);
 showcaseScreen.rotateY(-Math.PI);
 showcaseScreen.name = "showcase-screen";
 showcase.add(showcaseScreen);
-
 scene.add(showcase);
 showcase.position.set(0, 0, 15);
+showcase.traverse(c => {
+  if (c instanceof THREE.Mesh) {
+    ((c as THREE.Mesh).material as THREE.Material).fog = false;
+  }
+})
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -445,5 +491,8 @@ window.addEventListener('resize', () => {
   PLAYER.camera.aspect = window.innerWidth / window.innerHeight;
   PLAYER.camera.updateProjectionMatrix();
 })
+
+contentLoaded = true;
+preloader.style.display = "none";
 
 animate();
