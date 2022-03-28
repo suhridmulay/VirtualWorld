@@ -17,7 +17,6 @@ import { Advert } from './advert';
 import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
-import { Vector3 } from 'three';
 import { TreasureHuntManager } from './treasure';
 
 // import * as URLs from './URLS.json';
