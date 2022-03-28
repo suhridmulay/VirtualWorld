@@ -58,7 +58,6 @@ export class TreasureHuntManager {
         let lineNo = 5;
         let lineHeight = 15;
         let line = '';
-        let x = 0;
         for (let word of text.split(' ')) {
             const testLine = line + word + ' ';
             const testLineSize = context.measureText(testLine);
