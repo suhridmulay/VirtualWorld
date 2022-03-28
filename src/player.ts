@@ -39,6 +39,8 @@ export class Player {
     animationState: string;
     location: string;
 
+    audioListener: THREE.AudioListener
+
     lookSpeedX: number
     lookSpeedY: number
 
@@ -69,6 +71,11 @@ export class Player {
         this.lookSpeedX = this.lookSpeedY = 0.05;
         this.acceleration = 2;
         this.decceleration = new THREE.Vector3();
+        
+        const playerListener = new THREE.AudioListener();
+        this.audioListener = playerListener;
+        this.model.add(playerListener);
+
     }
 
     setCameraPosition(position: THREE.Vector3) {

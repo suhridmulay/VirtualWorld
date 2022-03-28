@@ -14,10 +14,17 @@ export class Advert {
     _firmname: string;
     _message: string;
 
-    constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3) {
+    _image: string;
+
+    constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3, image?: string) {
 
         this._firmname = firmName;
         this._message = message;
+        if (image) {
+            this._image = image;
+        } else {
+            this._image = '';
+        }
 
         this._model = new THREE.Object3D()
         this.addBanner(adTexture, offset)
@@ -38,8 +45,8 @@ export class Advert {
         })
     }
 
-    update() {
-
+    createContent() {
+        const img = document.createElement('')
     }
 
     async addPanel(panel: THREE.Object3D) {

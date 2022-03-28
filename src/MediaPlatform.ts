@@ -33,7 +33,7 @@ export class MediaPlatform {
             controlRingGeometry,
             controlRingMaterial.clone()
         )
-        this._controlRing.position.set(0, 0.5, -3);
+        this._controlRing.position.set(0, 0.5, -4.5);
         this._controlRing.rotateX(-Math.PI/2);
         this._screen.position.set(0, 2, 0);
         this._screen.rotateY(Math.PI);

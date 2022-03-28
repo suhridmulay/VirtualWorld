@@ -254,8 +254,13 @@ artworkPanel.scale.setScalar(0.001);
 const artowrkTexture = grassNormal;
 const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artworks.push(artowrk)
+const artowrkTexture2 = grassTexture;
+const artowrk2 = new Artwork("My Artwork", "My Canvas", artowrkTexture2, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
+artworks.push(artowrk2)
 scene.add(artowrk._model);
+scene.add(artowrk2._model);
 artowrk._model.position.set(-10, 0, 0);
+artowrk2._model.position.set(-15, 0, 10);
 artowrk._model.lookAt(PLAYER.position);
 
 // Hedge
@@ -267,7 +272,7 @@ const hedgeBumpTexture = await textureLoader.loadAsync('res/textures/hedge/heigh
 const hedgeAOTexture = await textureLoader.loadAsync('res/textures/hedge/ao.jpg');
 const hedgeRoughnessTexture = await textureLoader.loadAsync('res/textures/hedge/roughness.jpg');
 const hedge = new THREE.Mesh(
-  new THREE.TorusBufferGeometry(50, 1, 30, 120),
+  new THREE.TorusBufferGeometry(100, 1, 30, 120),
   new THREE.MeshStandardMaterial({
     map: hedgeTexture,
     normalMap: hedgeNormalTexture,
@@ -321,7 +326,6 @@ hoboModel.scene.traverse(c => {
   if (c instanceof THREE.Mesh) {
     (c as THREE.Mesh).material = new THREE.MeshStandardMaterial({
       map: marbleTexture,
-      color: 0x0a0b0f,
       roughnessMap: marbleRoughnessTexture,
       roughness: 0.7,
       metalness: 0.3
@@ -347,6 +351,15 @@ hobo.traverse(c => {
     ((c as THREE.Mesh).material as THREE.Material).fog = false;
   }
 })
+const sound = new THREE.PositionalAudio(PLAYER.audioListener);
+const audioLoader = new THREE.AudioLoader()
+let buffer = await audioLoader.loadAsync('res/audio/Aarohi final song.mp3');
+sound.setBuffer(buffer);
+hobo.add(sound);
+sound.play();
+sound.loop = true;
+sound.setVolume(4.0);
+
 
 
 // Dome
@@ -388,7 +401,6 @@ if (Hls.isSupported()) {
 
 // Media Platforms
 const mediPlatforms: MediaPlatform[] = [];
-
 const mediaPlatformBase = showcasePlatform.clone();
 const kochikameVideo = document.createElement('video');
 kochikameVideo.src = 'res/media/Ryotsu the detective Part 1.mp4';
@@ -397,6 +409,7 @@ mediPlatforms.push(mediaPlatform);
 mediaPlatform._model.translateZ(15);
 mediaPlatform._model.translateX(-5);
 scene.add(mediaPlatform._model)
+
 
 const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
 mediPlatforms.push(liveVideoPlatform)
@@ -416,6 +429,7 @@ const treasureHuntManager = new TreasureHuntManager();
 function treasureSpawn() {
   scene.remove(treasureHuntManager.currentSpawnModel);
   const coords = new THREE.Vector3(10, 0, 30);
+  console.log(`spawning treasure`)
   if (GameState.PlayerState == "FREEROAM") {
     treasureHuntManager.spawnTreasure(scene, treasure, coords);
     hud.modal.container.classList.add('appear-grow');
@@ -424,7 +438,8 @@ function treasureSpawn() {
     GameState.interationTargetPosition.copy(PLAYER.model.position);
   }
 }
-setTimeout(treasureSpawn, 5000);
+setTimeout(treasureSpawn, 1000 * 60 * (2 + Math.random()));
+
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -443,6 +458,7 @@ document.addEventListener('click', (e) => {
       GameState.PlayerState = "INTERACTING";
       GameState.interationTargetPosition.copy(PLAYER.model.position);
       scene.remove(treasure);
+      setTimeout(treasureSpawn, 1000 * 60 * (10 + 2 * Math.random()));
     }
   }
 })
@@ -478,6 +494,11 @@ function gameUpdate() {
   
 
   if (GameState.PlayerState == "FREEROAM") {
+
+    if (!sound.isPlaying) {
+      sound.play();
+    }
+
     let cp = new THREE.Vector3()
     mediPlatforms.forEach(mp => {
       mp._controlRing.getWorldPosition(cp);
@@ -519,6 +540,10 @@ function gameUpdate() {
   }
 
   if (GameState.PlayerState == "INTERESTED") {
+    if (sound.isPlaying) {
+      sound.pause()
+    }
+
     if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 3.0) {
       GameState.PlayerState = "FREEROAM"
       if (activeMediaPlatform) {
@@ -526,6 +551,12 @@ function gameUpdate() {
         activeMediaPlatform = undefined;
         GameState.interationTargetPosition = new THREE.Vector3();
       }
+    }
+  }
+
+  if (GameState.PlayerState == "INTERACTING") {
+    if (sound.isPlaying) {
+      sound.pause()
     }
   }
 
@@ -554,6 +585,8 @@ window.addEventListener('resize', () => {
 })
 
 // contentLoaded = true;
+PLAYER.model.position.set(0, 0, -80)
+PLAYER.model.rotateY(Math.PI)
 preloader.style.display = "none";
 
 animate();
