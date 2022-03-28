@@ -414,10 +414,15 @@ treasure.traverse(t => {
 });
 const treasureHuntManager = new TreasureHuntManager();
 function treasureSpawn() {
+  scene.remove(treasureHuntManager.currentSpawnModel);
   const coords = new THREE.Vector3(10, 0, 30);
-  treasureHuntManager.spawnTreasure(scene, treasure, coords);
-  hud.modal.container.classList.add('appear-grow');
-  hud.modal.content.innerText = "A Treasure has spawned on the map, be the first to reveal it and send to @aarohiworld for a chance to win exciting prizes";
+  if (GameState.PlayerState == "FREEROAM") {
+    treasureHuntManager.spawnTreasure(scene, treasure, coords);
+    hud.modal.container.classList.add('appear-grow');
+    hud.modal.content.innerText = "A Treasure has spawned on the map, be the first to reveal it and send to @aarohiworld for a chance to win exciting prizes";
+    GameState.PlayerState = "INTERACTING";
+    GameState.interationTargetPosition.copy(PLAYER.model.position);
+  }
 }
 setTimeout(treasureSpawn, 5000);
 
@@ -435,6 +440,8 @@ document.addEventListener('click', (e) => {
       const message = treasureHuntManager.findTreasure();
       hud.modal.container.classList.add('appear-grow');
       hud.modal.content.appendChild(message);
+      GameState.PlayerState = "INTERACTING";
+      GameState.interationTargetPosition.copy(PLAYER.model.position);
       scene.remove(treasure);
     }
   }
