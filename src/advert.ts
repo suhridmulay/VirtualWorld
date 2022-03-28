@@ -46,7 +46,8 @@ export class Advert {
     }
 
     createContent() {
-        const img = document.createElement('')
+        const img = document.createElement('img');
+        img.src = this._image;
     }
 
     async addPanel(panel: THREE.Object3D) {
