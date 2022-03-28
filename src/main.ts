@@ -18,6 +18,7 @@ import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { Vector3 } from 'three';
+import { TreasureHuntManager } from './treasure';
 
 // import * as URLs from './URLS.json';
 
@@ -123,6 +124,7 @@ const GameState = {
 
 hud.modal.closeButtom.addEventListener('click', (_) => {
   hud.modal.container.classList.remove('appear-grow');
+  hud.modal.content.innerHTML = '';
   GameState.PlayerState = "INTERESTED";
 })
 
@@ -146,7 +148,7 @@ const renderPass = new RenderPass(scene, PLAYER.camera);
 composer.addPass(renderPass);
 
 // Add bloom pass
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.5, 0.98);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.5, 1.0);
 composer.addPass(bloomPass);
 
 // Add anti-aliasing pass
@@ -239,7 +241,7 @@ for (let adv of adURLs) {
   scene.add(ad._model)
   ad._model.rotateY(-Math.PI / 2)
   ad._model.position.set(
-    10,
+    15,
     0,
     adZ
   )
@@ -310,30 +312,31 @@ scene.add(bushInstances);
 
 // Hobo
 const hobo = new THREE.Object3D()
-const concreteTexture = await textureLoader.loadAsync('res/textures/concrete/base.jpg')
-const concreteNormalTexture = await textureLoader.loadAsync('res/textures/concrete/normal.jpg')
-const concreteBumpTexture = await textureLoader.loadAsync('res/textures/concrete/height.png')
-const concreteAOTexture = await textureLoader.loadAsync('res/textures/concrete/ao.jpg')
-const concreteRoughnessTexture = await textureLoader.loadAsync('res/textures/concrete/roughness.jpg')
 const hoboModel = await gltfLoader.loadAsync('res/models/misc/Hobo.glb');
+const marbleTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Color.jpg');
+marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
+marbleTexture.repeat.set(8, 8);
+const marbleRoughnessTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Roughness.jpg');
+
 hoboModel.scene.traverse(c => {
   if (c instanceof THREE.Mesh) {
-    (c.geometry as THREE.BufferGeometry).computeVertexNormals();
-    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).metalness = 1.0;
-    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).roughness = 0.0;
-    ((c as THREE.Mesh).material as THREE.MeshStandardMaterial).color = new THREE.Color(0x0f0a0b);
+    (c as THREE.Mesh).material = new THREE.MeshStandardMaterial({
+      map: marbleTexture,
+      color: 0x0a0b0f,
+      roughnessMap: marbleRoughnessTexture,
+      roughness: 0.7,
+      metalness: 0.3
+    })
   }
 })
+
 hoboModel.scene.scale.setScalar(0.001);
-const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 36, 1);
+const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 72, 1);
 const hoboBaseMaterial = new THREE.MeshStandardMaterial({
-  map: concreteTexture,
-  normalMap: concreteNormalTexture,
-  bumpMap: concreteBumpTexture,
-  aoMap: concreteAOTexture,
+  map: marbleTexture,
   roughness: 0.8,
-  metalness: 0.0,
-  roughnessMap: concreteRoughnessTexture
+  metalness: 0.2,
+  roughnessMap: marbleRoughnessTexture
 })
 const hoboBase = new THREE.Mesh(hoboBaseGeometry, hoboBaseMaterial);
 hobo.add(hoboBase);
@@ -389,7 +392,7 @@ const mediPlatforms: MediaPlatform[] = [];
 
 const mediaPlatformBase = showcasePlatform.clone();
 const kochikameVideo = document.createElement('video');
-kochikameVideo.src = 'res/media/Ryotsu The Magician.mp4';
+kochikameVideo.src = 'res/media/Ryotsu the detective Part 1.mp4';
 const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, kochikameVideo)
 mediPlatforms.push(mediaPlatform);
 mediaPlatform._model.translateZ(15);
@@ -401,6 +404,24 @@ mediPlatforms.push(liveVideoPlatform)
 scene.add(liveVideoPlatform._model)
 liveVideoPlatform._model.position.set(5, 0, 15);
 
+// Treasure Hunt
+const treasureModel = await fbxLoader.loadAsync('res/models/decor/Chest_Gold.fbx');
+const treasure = treasureModel;
+treasure.scale.setScalar(0.01);
+treasure.traverse(t => {
+  if (t instanceof THREE.Mesh) {
+    t.name = "treasure"
+  }
+});
+const treasureHuntManager = new TreasureHuntManager();
+function treasureSpawn() {
+  const coords = new THREE.Vector3(10, 0, 30);
+  treasureHuntManager.spawnTreasure(scene, treasure, coords);
+  hud.modal.container.classList.add('appear-grow');
+  hud.modal.content.innerText = "A Treasure has spawned on the map, be the first to reveal it and send to @aarohiworld for a chance to win exciting prizes";
+}
+setTimeout(treasureSpawn, 5000);
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -409,23 +430,33 @@ document.addEventListener('click', (e) => {
   raycaster.setFromCamera(mousePointer, PLAYER.camera);
   const intersects = raycaster.intersectObjects(scene.children, true);
   console.log(intersects);
+
+  if (intersects) {
+    if (intersects[0].object.name == "treasure") {
+      const message = treasureHuntManager.findTreasure();
+      hud.modal.container.classList.add('appear-grow');
+      hud.modal.content.appendChild(message);
+      scene.remove(treasure);
+    }
+  }
 })
 
 let activeMediaPlatform: MediaPlatform | undefined = undefined;
-
 function gameUpdate() {
 
   const up = new THREE.Vector3(0, 1, 0);
 
   // Rotate hobo model
-  hobo.rotateY(0.02);
+  hobo.rotateY(2 * Math.PI / 240);
 
   // Rotate interaction rings for ads
+  
   /*
   ads.forEach(ad => {
     ad._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     ad._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
+  */
 
   // Rotate interaction rings for artworks
   artworks.forEach(artwork => {
@@ -438,7 +469,7 @@ function gameUpdate() {
     mp._controlRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     mp._controlRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
-  */
+  
 
   if (GameState.PlayerState == "FREEROAM") {
     let cp = new THREE.Vector3()
