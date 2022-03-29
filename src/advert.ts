@@ -38,11 +38,6 @@ export class Advert {
         interactionRing.position.set(1.375, 0.0, 2);
         this._interactionRing = interactionRing;
         this._model.add(interactionRing)
-        this._model.traverse(c => {
-            if (c instanceof THREE.Mesh) {
-                ((c as THREE.Mesh).material as THREE.Material).fog = false;
-            }
-        })
     }
 
     createContent() {

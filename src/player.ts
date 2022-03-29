@@ -231,6 +231,19 @@ export class Player {
         }
     }
 
+    resetMotionState() {
+        this.motion = {
+            forward: false,
+            left: false,
+            right: false,
+            reverse: false,
+            mousecapture: false,
+            mouseNormalX: 0,
+            mouseNormalY: 0,
+            speed: false
+        }
+    }
+
     update(deltaT: number) {
         this.motionUpdate(deltaT);
         this.animate();

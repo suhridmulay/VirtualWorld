@@ -63,7 +63,8 @@ const fbxLoader = new FBXLoader();
 const gltfLoader = new GLTFLoader();
 
 const renderer = new THREE.WebGLRenderer({
-  logarithmicDepthBuffer: true
+  logarithmicDepthBuffer: true,
+  powerPreference: "high-performance"
 })
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -83,7 +84,7 @@ function taxicabDistance(v1: THREE.Vector3, v2: THREE.Vector3){
 const composer = new EffectComposer(renderer);
 
 // Create a player object and setup the camera
-const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 1000 }, 'Forest');
+const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 100 }, 'Forest');
 PLAYER.camera.position.set(0, 1, 0);
 
 // Register on screen HUD controls
@@ -107,7 +108,8 @@ const worldClock = new THREE.Clock();
 // Create a scene
 const scene = new THREE.Scene();
 scene.add(PLAYER.model);
-scene.fog = new THREE.FogExp2(0xc0c0c0, 0.04);
+scene.background = new THREE.Color(0x87ceeb);
+scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
 
 // Adding a sphere mesh for the player to follow
 PLAYER.model.castShadow = false;
@@ -169,7 +171,7 @@ scene.add(groundPlane);
 
 // Create a skyball
 const skyball = new THREE.Mesh(
-  new THREE.SphereBufferGeometry(100, 40, 40),
+  new THREE.SphereBufferGeometry(400, 40, 40),
   new THREE.MeshBasicMaterial({
     color: 0x87ceeb,
     fog: true,
@@ -254,14 +256,36 @@ artworkPanel.scale.setScalar(0.001);
 const artowrkTexture = grassNormal;
 const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artworks.push(artowrk)
-const artowrkTexture2 = grassTexture;
-const artowrk2 = new Artwork("My Artwork", "My Canvas", artowrkTexture2, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
-artworks.push(artowrk2)
 scene.add(artowrk._model);
-scene.add(artowrk2._model);
+artowrk._model.rotateY(Math.PI / 2);
 artowrk._model.position.set(-10, 0, 0);
-artowrk2._model.position.set(-15, 0, 10);
-artowrk._model.lookAt(PLAYER.position);
+
+// Redirection Props
+const platformData = [
+  {
+    name: 'instagram',
+    url: 'https://www.instagram.com/?hl=en',
+  }, 
+  {
+    name: 'facebook',
+    url: 'https://www.facebook.com/',
+  },
+  {
+    name: 'youtube',
+    url: 'https://www.youtube.com/'
+  }
+]
+let redirectionPlatforms: Artwork[] = [];
+let pz = -70
+platformData.forEach(pd => {
+  const artstation = new Artwork(pd.name, pd.name, grassTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
+  artstation._redirect = pd.url;
+  scene.add(artstation._model);
+  artstation._model.position.set(15, 0, pz);
+  artstation._model.rotateY(5 * Math.PI / 4);
+  redirectionPlatforms.push(artstation);
+  pz += 15;
+})
 
 // Hedge
 const hedgeTexture = await textureLoader.loadAsync('res/textures/hedge/base.jpg');
@@ -283,31 +307,29 @@ const hedge = new THREE.Mesh(
   })
 )
 hedge.rotateX(-Math.PI / 2)
-scene.add(hedge)
+// scene.add(hedge)
 
 // Vegetation
 const bushModel = await gltfLoader.loadAsync('res/models/props/bush.glb');
 const bush = bushModel.scene;
 bush.scale.setScalar(0.005);
 
-console.log(bush);
-
 const bushInstances = new THREE.InstancedMesh(
   (bush.children[0].children[0] as THREE.Mesh).geometry,
   (bush.children[0].children[0] as THREE.Mesh).material,
-  100
+  200
 )
 const R = 30;
 const transfromDummy = new THREE.Object3D();
 for (let i = 0; i < 100; i++) {
   const theta = Math.random() * 2 * Math.PI;
-  const offset = (Math.random() * 2 - 1) * 5
+  const offset = (Math.random()) * 30
   transfromDummy.position.set(
     (R + offset) * Math.cos(theta),
     0.5 * 0.5 * Math.random(),
     (R + offset) * Math.sin(theta)
   )
-  transfromDummy.scale.setScalar(Math.random() * 0.5);
+  transfromDummy.scale.setScalar(0.25 + Math.random() * 0.25);
   transfromDummy.updateMatrix();
   bushInstances.setMatrixAt(i, transfromDummy.matrix);
 }
@@ -335,22 +357,18 @@ hoboModel.scene.traverse(c => {
 
 hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 72, 1);
-const hoboBaseMaterial = new THREE.MeshStandardMaterial({
+const whiteMarbleMaterial = new THREE.MeshStandardMaterial({
   map: marbleTexture,
   roughness: 0.8,
   metalness: 0.2,
-  roughnessMap: marbleRoughnessTexture
+  roughnessMap: marbleRoughnessTexture,
+  side: THREE.DoubleSide
 })
-const hoboBase = new THREE.Mesh(hoboBaseGeometry, hoboBaseMaterial);
+const hoboBase = new THREE.Mesh(hoboBaseGeometry, whiteMarbleMaterial);
 hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
 scene.add(hobo);
 hobo.position.set(0, 0, -20);
-hobo.traverse(c => {
-  if (c instanceof THREE.Mesh) {
-    ((c as THREE.Mesh).material as THREE.Material).fog = false;
-  }
-})
 const sound = new THREE.PositionalAudio(PLAYER.audioListener);
 const audioLoader = new THREE.AudioLoader()
 let buffer = await audioLoader.loadAsync('res/audio/Aarohi final song.mp3');
@@ -365,11 +383,6 @@ sound.setVolume(4.0);
 // Dome
 const domeModel = await gltfLoader.loadAsync('res/models/misc/Dome 2.glb')
 const dome = domeModel.scene;
-dome.traverse(c => {
-  if (c instanceof THREE.Mesh) {
-    ((c as THREE.Mesh).material as THREE.Material).fog = false;
-  }
-})
 dome.scale.setScalar(1.5)
 dome.position.y -= 0.5;
 scene.add(dome)
@@ -379,13 +392,13 @@ const oat = new THREE.Object3D()
 const otaModel = await gltfLoader.loadAsync('res/models/misc/OAT.glb')
 oat.add(otaModel.scene)
 oat.position.y -= 0.01
-scene.add(oat)
+// scene.add(oat)
 
 
 // Showcase stage for sponsors or movies
 // Livestream jama lo bas, This thing is gold
 const showcase = new THREE.Object3D();
-const showcaseStageMaterial = hoboBaseMaterial;
+const showcaseStageMaterial = whiteMarbleMaterial;
 const showcasePlatform = new THREE.Mesh(
   new THREE.BoxBufferGeometry(8, 0.3, 4),
   showcaseStageMaterial
@@ -428,7 +441,14 @@ treasure.traverse(t => {
 const treasureHuntManager = new TreasureHuntManager();
 function treasureSpawn() {
   scene.remove(treasureHuntManager.currentSpawnModel);
-  const coords = new THREE.Vector3(10, 0, 30);
+  const R0 = 30;
+  const offset = 30 * Math.random();
+  const theta = Math.random() * 2 * Math.PI;
+  const coords = new THREE.Vector3(
+    (R0 + offset) * Math.cos(theta),
+    0,
+    (R0 + offset) * Math.sin(theta)
+  );
   console.log(`spawning treasure`)
   if (GameState.PlayerState == "FREEROAM") {
     treasureHuntManager.spawnTreasure(scene, treasure, coords);
@@ -438,7 +458,30 @@ function treasureSpawn() {
     GameState.interationTargetPosition.copy(PLAYER.model.position);
   }
 }
-setTimeout(treasureSpawn, 1000 * 60 * (2 + Math.random()));
+const treasureSpawnTimeout = 1000 * 60 * (2 + Math.random());
+console.log(`Treasure spawn in ${treasureSpawnTimeout / 1000}s`);
+setTimeout(treasureSpawn, treasureSpawnTimeout);
+
+// Walls
+const wallShape = new THREE.Shape();
+wallShape.moveTo(0, 0);
+wallShape.lineTo(-20, 0);
+wallShape.lineTo(-20, 40);
+wallShape.lineTo(-60, 40);
+wallShape.lineTo(-60, 210);
+wallShape.lineTo(60, 210);
+wallShape.lineTo(60, 40);
+wallShape.lineTo(20, 40);
+wallShape.lineTo(20, 0);
+const wallGeometry = new THREE.ExtrudeBufferGeometry(wallShape, {
+  depth: 35
+})
+const wallMaterial = whiteMarbleMaterial;
+const walls = new THREE.Mesh(wallGeometry, wallMaterial);
+walls.rotateX(Math.PI/2)
+walls.translateZ(-30);
+walls.translateY(-80);
+scene.add(walls);
 
 
 // Setup mouse interactions
@@ -468,6 +511,10 @@ function gameUpdate() {
 
   const up = new THREE.Vector3(0, 1, 0);
 
+  if (PLAYER.model.position.length() > 100) {
+    PLAYER.model.position.set(0, 0, -80)
+  }
+
   // Rotate hobo model
   hobo.rotateY(2 * Math.PI / 240);
 
@@ -479,6 +526,12 @@ function gameUpdate() {
     ad._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
   */
+
+  // Redirection Stations
+  redirectionPlatforms.forEach(rp => {
+    rp._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    rp._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
+  })
 
   // Rotate interaction rings for artworks
   artworks.forEach(artwork => {
@@ -514,13 +567,24 @@ function gameUpdate() {
     artworks.forEach(artwork => {
       let ip = new THREE.Vector3();
       artwork._interactionRing.getWorldPosition(ip);
-      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.7) {
+      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.6) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
         PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
         hud.modal.container.classList.add('appear-grow');
         hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}`
+      }
+    })
+
+    redirectionPlatforms.forEach(rp => {
+      let ip = new THREE.Vector3();
+      rp._interactionRing.getWorldPosition(ip);
+      if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.6) {
+        GameState.PlayerState = "INTERESTED";
+        GameState.interationTargetPosition.copy(ip);
+        window.open(rp._redirect, '_blank')
+        PLAYER.resetMotionState()
       }
     })
 

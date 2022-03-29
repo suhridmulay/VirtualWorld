@@ -13,19 +13,22 @@ export class Artwork {
 
     _banner: THREE.Object3D;
 
+    _redirect: string;
+
     _firmname: string;
     _message: string;
 
-    constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3) {
+    constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3, redirect: string = '') {
 
         this._firmname = firmName;
         this._message = message;
+        this._redirect = redirect;
 
         this._model = new THREE.Object3D()
         this.addBanner(adTexture, offset)
 
         const canvas = document.createElement('canvas');
-        const text = 'T I M E L I N E';
+        const text = this._firmname;
         canvas.width = 700;
         canvas.height = 100;
         const context = canvas.getContext('2d')!;
@@ -47,11 +50,6 @@ export class Artwork {
         interactionRing.position.set(3.0, 0.5, 2);
         this._interactionRing = interactionRing;
         this._model.add(interactionRing)
-        this._model.traverse(c => {
-            if (c instanceof THREE.Mesh) {
-                ((c as THREE.Mesh).material as THREE.Material).fog = false;
-            }
-        })
         this._banner = new THREE.Object3D();
     }
 
