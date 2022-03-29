@@ -82,6 +82,9 @@
     ".   w   ."
     "a   s   d"
     "cap cap cap";
+  row-gap: 0.5em;
+  column-gap: 2.5ch;
+  user-select: none;
 }
 
 .w {
@@ -145,6 +148,16 @@
 
 .disappear-shrink {
   animation: grow 250ms ease-in reverse;
+}
+
+.controls button {
+  background-color: orangered;
+  color: white;
+  border: none;
+}
+
+.controls button:hover {
+  outline: 2px solid purple;
 }
 
 @keyframes grow {

@@ -18,6 +18,8 @@ export class Artwork {
     _firmname: string;
     _message: string;
 
+    _generateInteraction: () => HTMLDivElement;
+
     constructor(firmName: string, message: string, adTexture: THREE.Texture, panelModel: THREE.Object3D, offset?: THREE.Vector3, redirect: string = '') {
 
         this._firmname = firmName;
@@ -51,10 +53,13 @@ export class Artwork {
         this._interactionRing = interactionRing;
         this._model.add(interactionRing)
         this._banner = new THREE.Object3D();
-    }
-
-    update() {
-
+        this._generateInteraction = () => {
+            const container = document.createElement('div');
+            const paragraph = document.createElement('p');
+            paragraph.innerText = 'Your Content Here';
+            container.appendChild(paragraph);
+            return container;
+        }
     }
 
     async addBoard(texture: THREE.Texture) {

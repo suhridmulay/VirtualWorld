@@ -292,12 +292,12 @@ for (let adv of adURLs) {
 preloaderText.innerText = 'To our gracious sponsors'
 
 // Artwork
-let artworks: Artwork[] = []
+let interactions: Artwork[] = []
 const artworkPanel = await fbxLoader.loadAsync('res/models/misc/Display Panels.fbx');
 artworkPanel.scale.setScalar(0.001);
 const artowrkTexture = grassNormal;
 const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
-artworks.push(artowrk)
+interactions.push(artowrk)
 scene.add(artowrk._model);
 artowrk._model.rotateY(Math.PI / 2);
 artowrk._model.position.set(-10, 0, 0);
@@ -569,9 +569,9 @@ function gameUpdate() {
   })
 
   // Rotate interaction rings for artworks
-  artworks.forEach(artwork => {
-    artwork._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
-    artwork._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
+  interactions.forEach(interaction => {
+    interaction._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
+    interaction._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
 
   // Rotate interaction rings for media platforms
@@ -599,16 +599,16 @@ function gameUpdate() {
       }
     })
 
-    artworks.forEach(artwork => {
+    interactions.forEach(interaction => {
       let ip = new THREE.Vector3();
-      artwork._interactionRing.getWorldPosition(ip);
+      interaction._interactionRing.getWorldPosition(ip);
       if (ip.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.6) {
         GameState.PlayerState = "INTERACTING"
         GameState.interationTargetPosition.copy(ip)
         PLAYER.motion.mousecapture = false;
         PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
         hud.modal.container.classList.add('appear-grow');
-        hud.modal.content.innerText = `Artwork: ${artowrk._firmname}, By: ${artowrk._message}`
+        hud.modal.content.appendChild(interaction._generateInteraction())
       }
     })
 
