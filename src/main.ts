@@ -81,7 +81,7 @@ app.appendChild(renderer.domElement);
 
 preloaderText.innerText = 'Started Renderer'
 
-function taxicabDistance(v1: THREE.Vector3, v2: THREE.Vector3){
+function taxicabDistance(v1: THREE.Vector3, v2: THREE.Vector3) {
   let d = Math.abs(v1.x - v2.x) + Math.abs(v1.y - v2.y) + Math.abs(v1.z - v2.z)
   return d
 }
@@ -98,7 +98,7 @@ const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 140)]
 
 function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
-  return insideQuad(currentPlanePosition, validArea1Corners[0], validArea1Corners[1]) 
+  return insideQuad(currentPlanePosition, validArea1Corners[0], validArea1Corners[1])
     || insideQuad(currentPlanePosition, validArea2Corners[0], validArea2Corners[1])
 }
 
@@ -106,7 +106,7 @@ function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
 const composer = new EffectComposer(renderer);
 
 // Create a player object and setup the camera
-const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 100 }, 'Forest');
+const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 1000 }, 'Forest');
 PLAYER.camera.position.set(0, 1, 0);
 
 preloaderText.innerText = 'Generated Player Object';
@@ -211,18 +211,23 @@ scene.add(skyball);
 function loadLights() {
   const ambientLight = new THREE.AmbientLight(0x404040, 1);
   scene.add(ambientLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 3);
   dirLight.color.setHSL(0.5, 0.3, 0.2);
   dirLight.position.set(0, 1.75, 0);
   dirLight.position.multiplyScalar(5);
   dirLight.castShadow = true;
-  dirLight.shadow.mapSize.set(4096, 4096)
-  dirLight.shadow.camera.near = 0.1;
-  dirLight.shadow.camera.far = 1000;
-  dirLight.shadow.camera.top = 40;
-  dirLight.shadow.camera.bottom = 40;
-  dirLight.shadow.camera.left = 40;
-  dirLight.shadow.camera.right = 40;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
+
+  const d = 50;
+
+  dirLight.shadow.camera.left = - d;
+  dirLight.shadow.camera.right = d;
+  dirLight.shadow.camera.top = d;
+  dirLight.shadow.camera.bottom = - d;
+
+  dirLight.shadow.camera.far = 3500;
+  dirLight.shadow.bias = - 0.0001;
   scene.add(dirLight);
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
   hemiLight.color.setHSL(0.3, 0.5, 0.8);
@@ -284,6 +289,7 @@ for (let adv of adURLs) {
   )
   adZ += 5;
 }
+preloaderText.innerText = 'To our gracious sponsors'
 
 // Artwork
 let artworks: Artwork[] = []
@@ -302,7 +308,7 @@ const platformData = [
     name: 'instagram',
     url: 'https://www.instagram.com/?hl=en',
     texture: await textureLoader.loadAsync('res/backgrounds/INSTA.jpg')
-  }, 
+  },
   {
     name: 'facebook',
     url: 'https://www.facebook.com/',
@@ -325,6 +331,7 @@ platformData.forEach(pd => {
   redirectionPlatforms.push(artstation);
   pz += 15;
 })
+preloaderText.innerText = 'Connecting Our Social Media'
 
 // Hedge
 const hedgeTexture = await textureLoader.loadAsync('res/textures/hedge/base.jpg');
@@ -374,35 +381,31 @@ for (let i = 0; i < 100; i++) {
 }
 scene.add(bushInstances);
 
+preloaderText.innerText = 'Putting Treasures for you'
+
 
 // Hobo
 const hobo = new THREE.Object3D()
 const hoboModel = await gltfLoader.loadAsync('res/models/misc/Hobo.glb');
-const marbleTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Color.jpg');
+const marbleTexture = await textureLoader.loadAsync('res/textures/marble/Marble021_1K_Color.jpg');
 marbleTexture.wrapS = marbleTexture.wrapT = THREE.MirroredRepeatWrapping;
 marbleTexture.repeat.set(1, 1);
-const marbleRoughnessTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Roughness.jpg');
+const marbleRoughnessTexture = await textureLoader.loadAsync('res/textures/marble/Marble021_1K_Roughness.jpg');
+
+const whiteMarbleMaterial = new THREE.MeshStandardMaterial({
+  map: marbleTexture,
+  roughnessMap: marbleRoughnessTexture,
+  side: THREE.DoubleSide
+})
 
 hoboModel.scene.traverse(c => {
   if (c instanceof THREE.Mesh) {
-    (c as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-      map: marbleTexture,
-      roughnessMap: marbleRoughnessTexture,
-      roughness: 0.7,
-      metalness: 0.3
-    })
+    (c as THREE.Mesh).material = whiteMarbleMaterial
   }
 })
 
 hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 72, 1);
-const whiteMarbleMaterial = new THREE.MeshStandardMaterial({
-  map: marbleTexture,
-  roughness: 1.0,
-  metalness: 0.0,
-  roughnessMap: marbleRoughnessTexture,
-  side: THREE.DoubleSide
-})
 const hoboBase = new THREE.Mesh(hoboBaseGeometry, whiteMarbleMaterial);
 hobo.add(hoboBase);
 hobo.add(hoboModel.scene);
@@ -417,6 +420,7 @@ sound.play();
 sound.loop = true;
 sound.setVolume(4.0);
 
+preloaderText.innerText = 'Playing the Universal Symphony'
 
 
 // Dome
@@ -425,13 +429,7 @@ const dome = domeModel.scene;
 dome.scale.setScalar(1.5)
 dome.position.y -= 0.5;
 scene.add(dome)
-
-//oat
-const oat = new THREE.Object3D()
-const otaModel = await gltfLoader.loadAsync('res/models/misc/OAT.glb')
-oat.add(otaModel.scene)
-oat.position.y -= 0.01
-// scene.add(oat)
+preloaderText.innerText = 'Structuring The World'
 
 
 // Showcase stage for sponsors or movies
@@ -467,6 +465,7 @@ const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVi
 mediPlatforms.push(liveVideoPlatform)
 scene.add(liveVideoPlatform._model)
 liveVideoPlatform._model.position.set(5, 0, 15);
+preloaderText.innerText = 'Loading Stellar Performances'
 
 // Treasure Hunt
 const treasureModel = await fbxLoader.loadAsync('res/models/decor/Chest_Gold.fbx');
@@ -501,6 +500,8 @@ const treasureSpawnTimeout = 1000 * 60 * (2 + Math.random());
 console.log(`Treasure spawn in ${treasureSpawnTimeout / 1000}s`);
 setTimeout(treasureSpawn, treasureSpawnTimeout);
 
+preloaderText.innerText = 'Almost Done!'
+
 // Walls
 const wallShape = new THREE.Shape();
 wallShape.moveTo(0, 0);
@@ -517,11 +518,10 @@ const wallGeometry = new THREE.ExtrudeBufferGeometry(wallShape, {
 })
 const wallMaterial = whiteMarbleMaterial;
 const walls = new THREE.Mesh(wallGeometry, wallMaterial);
-walls.rotateX(Math.PI/2)
+walls.rotateX(Math.PI / 2)
 walls.translateZ(-30);
 walls.translateY(-80);
 scene.add(walls);
-
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -554,7 +554,7 @@ function gameUpdate() {
   hobo.rotateY(2 * Math.PI / 240);
 
   // Rotate interaction rings for ads
-  
+
   /*
   ads.forEach(ad => {
     ad._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
@@ -579,7 +579,7 @@ function gameUpdate() {
     mp._controlRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
     mp._controlRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
   })
-  
+
 
   if (GameState.PlayerState == "FREEROAM") {
 
@@ -626,7 +626,7 @@ function gameUpdate() {
     ads.forEach(ad => {
       let ip = new THREE.Vector3();
       ad._interactionRing.getWorldPosition(ip);
-      if (taxicabDistance(ip,PLAYER.model.position ) < 2) {
+      if (taxicabDistance(ip, PLAYER.model.position) < 2) {
         GameState.PlayerState = "INTERACTING"
         PLAYER.animationState = "idle";
         GameState.interationTargetPosition.copy(ip)
@@ -660,7 +660,7 @@ function gameUpdate() {
   }
 
   if (PLAYER.model.position.length() > 150) {
-    PLAYER.model.position.set(0, 0, 0); 
+    PLAYER.model.position.set(0, 0, 0);
   }
 }
 
