@@ -19,6 +19,8 @@ import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 
+import { Reflector } from 'three/examples/jsm/objects/Reflector';
+
 // import * as URLs from './URLS.json';
 
 
@@ -26,6 +28,7 @@ const playerModelUrl = 'res/models/avatar/source/eve.fbx';
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 const preloader = document.querySelector<HTMLDivElement>('#preloader')!
+const preloaderText = document.querySelector<HTMLHeadingElement>('#preloader > h1')!
 
 // let contentLoaded = false;
 
@@ -59,6 +62,8 @@ grassNormal.wrapS = THREE.MirroredRepeatWrapping;
 grassNormal.wrapT = THREE.MirroredRepeatWrapping;
 grassNormal.repeat.set(64, 64);
 
+preloaderText.innerText = 'Loading Ground Textures!'
+
 const fbxLoader = new FBXLoader();
 const gltfLoader = new GLTFLoader();
 
@@ -68,11 +73,13 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.physicallyCorrectLights = true;
+renderer.physicallyCorrectLights = false;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.sortObjects = true;
 app.appendChild(renderer.domElement);
+
+preloaderText.innerText = 'Started Renderer'
 
 function taxicabDistance(v1: THREE.Vector3, v2: THREE.Vector3){
   let d = Math.abs(v1.x - v2.x) + Math.abs(v1.y - v2.y) + Math.abs(v1.z - v2.z)
@@ -101,6 +108,8 @@ const composer = new EffectComposer(renderer);
 // Create a player object and setup the camera
 const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 100 }, 'Forest');
 PLAYER.camera.position.set(0, 1, 0);
+
+preloaderText.innerText = 'Generated Player Object';
 
 // Register on screen HUD controls
 ['mousedown', 'touchstart'].forEach(e => {
@@ -159,6 +168,8 @@ fbxLoader.load(playerModelUrl, (PLAYERMOB) => {
 // Raycaster setup for mouse interactions
 const raycaster = new THREE.Raycaster(undefined, undefined, undefined, 5);
 
+preloaderText.innerHTML = 'Interactions Initialised'
+
 // Add the rendering pass
 const renderPass = new RenderPass(scene, PLAYER.camera);
 composer.addPass(renderPass);
@@ -198,12 +209,20 @@ scene.add(skyball);
 
 
 function loadLights() {
-  const ambientLight = new THREE.AmbientLight(0x404040, 8);
+  const ambientLight = new THREE.AmbientLight(0x404040, 1);
   scene.add(ambientLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 8);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 2);
   dirLight.color.setHSL(0.5, 0.3, 0.2);
   dirLight.position.set(0, 1.75, 0);
   dirLight.position.multiplyScalar(5);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.set(4096, 4096)
+  dirLight.shadow.camera.near = 0.1;
+  dirLight.shadow.camera.far = 1000;
+  dirLight.shadow.camera.top = 40;
+  dirLight.shadow.camera.bottom = 40;
+  dirLight.shadow.camera.left = 40;
+  dirLight.shadow.camera.right = 40;
   scene.add(dirLight);
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
   hemiLight.color.setHSL(0.3, 0.5, 0.8);
@@ -211,6 +230,8 @@ function loadLights() {
   scene.add(hemiLight);
 }
 loadLights();
+
+preloaderText.innerText = 'Lighting the Scene'
 
 // Ads
 const adBasePath = 'res/logos/';
@@ -280,20 +301,23 @@ const platformData = [
   {
     name: 'instagram',
     url: 'https://www.instagram.com/?hl=en',
+    texture: await textureLoader.loadAsync('res/backgrounds/INSTA.jpg')
   }, 
   {
     name: 'facebook',
     url: 'https://www.facebook.com/',
+    texture: await textureLoader.loadAsync('res/backgrounds/FB.jpg')
   },
   {
     name: 'youtube',
-    url: 'https://www.youtube.com/'
+    url: 'https://www.youtube.com/',
+    texture: await textureLoader.loadAsync('res/backgrounds/YOUTUBE.jpg')
   }
 ]
 let redirectionPlatforms: Artwork[] = [];
 let pz = -70
 platformData.forEach(pd => {
-  const artstation = new Artwork(pd.name, pd.name, grassTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
+  const artstation = new Artwork(pd.name, pd.name, pd.texture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
   artstation._redirect = pd.url;
   scene.add(artstation._model);
   artstation._model.position.set(15, 0, pz);
@@ -355,8 +379,8 @@ scene.add(bushInstances);
 const hobo = new THREE.Object3D()
 const hoboModel = await gltfLoader.loadAsync('res/models/misc/Hobo.glb');
 const marbleTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Color.jpg');
-marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
-marbleTexture.repeat.set(8, 8);
+marbleTexture.wrapS = marbleTexture.wrapT = THREE.MirroredRepeatWrapping;
+marbleTexture.repeat.set(1, 1);
 const marbleRoughnessTexture = await textureLoader.load('res/textures/marble/Marble021_1K_Roughness.jpg');
 
 hoboModel.scene.traverse(c => {
@@ -374,8 +398,8 @@ hoboModel.scene.scale.setScalar(0.001);
 const hoboBaseGeometry = new THREE.CylinderBufferGeometry(3, 3, 0.3, 72, 1);
 const whiteMarbleMaterial = new THREE.MeshStandardMaterial({
   map: marbleTexture,
-  roughness: 0.8,
-  metalness: 0.2,
+  roughness: 1.0,
+  metalness: 0.0,
   roughnessMap: marbleRoughnessTexture,
   side: THREE.DoubleSide
 })
@@ -489,7 +513,7 @@ wallShape.lineTo(60, 40);
 wallShape.lineTo(20, 40);
 wallShape.lineTo(20, 0);
 const wallGeometry = new THREE.ExtrudeBufferGeometry(wallShape, {
-  depth: 35
+  depth: 35,
 })
 const wallMaterial = whiteMarbleMaterial;
 const walls = new THREE.Mesh(wallGeometry, wallMaterial);
