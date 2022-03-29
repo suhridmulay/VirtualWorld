@@ -133,7 +133,7 @@ const worldClock = new THREE.Clock();
 const scene = new THREE.Scene();
 scene.add(PLAYER.model);
 scene.background = new THREE.Color(0x87ceeb);
-scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
+// scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
 
 // Adding a sphere mesh for the player to follow
 PLAYER.model.castShadow = false;
@@ -326,12 +326,34 @@ platformData.forEach(pd => {
   const artstation = new Artwork(pd.name, pd.name, pd.texture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
   artstation._redirect = pd.url;
   scene.add(artstation._model);
-  artstation._model.position.set(15, 0, pz);
+  artstation._model.position.set(10, 0, pz);
   artstation._model.rotateY(5 * Math.PI / 4);
   redirectionPlatforms.push(artstation);
   pz += 15;
 })
 preloaderText.innerText = 'Connecting Our Social Media'
+const eventPlatformData = [
+  {
+    name: 'Shutterbug',
+    url: 'https://www.google.com',
+    texture: grassTexture
+  },
+  {
+    name: 'Art Conoscenza',
+    url: 'https://www.google.com',
+    texture: grassTexture
+  }
+]
+let epz = -65
+eventPlatformData.forEach(epd => {
+  const eventPlatform = new Artwork(epd.name, epd.name, epd.texture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
+  eventPlatform._redirect = epd.url;
+  scene.add(eventPlatform._model);
+  eventPlatform._model.position.set(-10, 0, epz);
+  eventPlatform._model.rotateY(3 * Math.PI/4);
+  redirectionPlatforms.push(eventPlatform);
+  epz += 15;
+})
 
 // Hedge
 const hedgeTexture = await textureLoader.loadAsync('res/textures/hedge/base.jpg');
