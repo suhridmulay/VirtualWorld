@@ -18,10 +18,6 @@ import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
-
-import { Reflector } from 'three/examples/jsm/objects/Reflector';
-import { Clock } from 'three';
-
 // import * as URLs from './URLS.json';
 
 
