@@ -20,6 +20,7 @@ import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 
 import { Reflector } from 'three/examples/jsm/objects/Reflector';
+import { Clock } from 'three';
 
 // import * as URLs from './URLS.json';
 
@@ -133,9 +134,9 @@ const worldClock = new THREE.Clock();
 const scene = new THREE.Scene();
 scene.add(PLAYER.model);
 scene.background = new THREE.Color(0x87ceeb);
-// scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
+scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
 
-// Adding a sphere mesh for the player to follow
+// Adding a charachter mesh for the player to follow
 PLAYER.model.castShadow = false;
 const playerLight = new THREE.PointLight(0x010101, 1.0);
 PLAYER.addModel(playerLight);
@@ -355,27 +356,25 @@ eventPlatformData.forEach(epd => {
   epz += 15;
 })
 
-// Hedge
-const hedgeTexture = await textureLoader.loadAsync('res/textures/hedge/base.jpg');
-hedgeTexture.wrapS = hedgeTexture.wrapT = THREE.MirroredRepeatWrapping;
-hedgeTexture.repeat.set(200, 5)
-const hedgeNormalTexture = await textureLoader.loadAsync('res/textures/hedge/normal.jpg');
-const hedgeBumpTexture = await textureLoader.loadAsync('res/textures/hedge/height.png');
-const hedgeAOTexture = await textureLoader.loadAsync('res/textures/hedge/ao.jpg');
-const hedgeRoughnessTexture = await textureLoader.loadAsync('res/textures/hedge/roughness.jpg');
-const hedge = new THREE.Mesh(
-  new THREE.TorusBufferGeometry(100, 1, 30, 120),
-  new THREE.MeshStandardMaterial({
-    map: hedgeTexture,
-    normalMap: hedgeNormalTexture,
-    bumpMap: hedgeBumpTexture,
-    aoMap: hedgeAOTexture,
-    roughness: 1.0,
-    roughnessMap: hedgeRoughnessTexture
-  })
-)
-hedge.rotateX(-Math.PI / 2)
-// scene.add(hedge)
+// Spheres
+const sphereGeometry = new THREE.SphereBufferGeometry(1, 8, 8);
+const sphereMaterial = new THREE.MeshBasicMaterial({
+  color: 'orangered'
+})
+const INSTANCE_COUNT = 200;
+const sphereInstances = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, INSTANCE_COUNT)
+const sphereTransfromDummy = new THREE.Object3D()
+for (let i = 0; i < INSTANCE_COUNT; i++) {
+  sphereTransfromDummy.position.set(
+    (Math.random() * 2 - 1) * 100,
+    5 + 5 * Math.random(),
+    (Math.random() * 2 - 1) * 100
+  );
+  sphereTransfromDummy.scale.setScalar(Math.random());
+  sphereTransfromDummy.updateMatrix();
+  sphereInstances.setMatrixAt(i, sphereTransfromDummy.matrix)
+}
+scene.add(sphereInstances);
 
 // Vegetation
 const bushModel = await gltfLoader.loadAsync('res/models/props/bush.glb');
@@ -686,6 +685,12 @@ function gameUpdate() {
   }
 }
 
+function propsUpdate() {
+  sphereInstances.rotateY((2 * Math.PI / 2400));
+  sphereInstances.rotateZ(Math.sin(2 * Math.PI / 2000) * Math.PI / 6);
+  sphereInstances.position.y = 5 + 2 * Math.sin(10 * 2 * Math.PI * worldClock.getDelta())
+}
+
 function update() {
   if (GameState.PlayerState != "INTERACTING") {
     const oldPlayerPosition = PLAYER.model.position.clone()
@@ -695,6 +700,7 @@ function update() {
       PLAYER.model.position.copy(oldPlayerPosition);
     }
   }
+  propsUpdate();
   gameUpdate();
 }
 
