@@ -20,6 +20,7 @@ import { Artwork } from './artowrk';
 import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
+import { VideoController } from './videoController';
 // import * as URLs from './URLS.json';
 
 
@@ -47,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -98,12 +99,22 @@ function insideQuad(currentPosition: THREE.Vector2, point1: THREE.Vector2, point
 const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40)]
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 130)]
 const entrancePanelCorners = [new THREE.Vector2(-6, -72.5), new THREE.Vector2(4, -67.5)]
+const oatEntrance = [new THREE.Vector2(8, 60), new THREE.Vector2(10, 80)]
+const oatCenter = new THREE.Vector2(10, 95);
+const oatInnerRadius = 17.79;
+const oatOuterRadius = 30.65;
 
 function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
+  console.log(inBetween(currentPlanePosition.distanceTo(oatCenter), oatInnerRadius, oatOuterRadius))
   return (
     (insideQuad(currentPlanePosition, validArea1Corners[0], validArea1Corners[1])
     || insideQuad(currentPlanePosition, validArea2Corners[0], validArea2Corners[1]))
-    && !insideQuad(currentPlanePosition, entrancePanelCorners[0], entrancePanelCorners[1])
+    && (!insideQuad(currentPlanePosition, entrancePanelCorners[0], entrancePanelCorners[1]))
+    && (
+      !inBetween(currentPlanePosition.distanceTo(oatCenter), oatInnerRadius, oatOuterRadius) 
+      || insideQuad(currentPlanePosition, oatEntrance[0], oatEntrance[1])
+    )
+
   )
 }
 
@@ -208,17 +219,17 @@ const groundPlane = new THREE.Mesh(
     // map: grassTexture,
     // normalMap: grassNormal,
     color: 0x0f0f0f,
-    metalness: 0.8,
-    roughness: 0.2,
     normalMap: grassNormal,
     transparent: true,
-    opacity: 0.95
+    opacity: 0.85
   })
 )
 const groundMirror = new Reflector(
   new THREE.PlaneBufferGeometry(400, 400, 1, 1),
   {
-    clipBias: 0.01
+    clipBias: 0.01,
+    textureWidth: window.innerWidth,
+    textureHeight: window.innerHeight
   }
 )
 groundMirror.rotateX(-Math.PI/2)
@@ -499,11 +510,12 @@ const oatModel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/OAT.glb
 const oatContainer = new THREE.Object3D();
 const oat = oatModel.scene;
 oatContainer.add(oat)
-oat.position.y -= 0.1
+oat.position.y += 0.1
 oat.position.x += 70;
 oat.position.z += 50
 oatContainer.rotateY(3*(Math.PI)/2)
 oatContainer.position.z += 60
+oatContainer.position.x += 30;
 scene.add(oatContainer)
 preloaderText.innerText = 'Setting the Stage'
 
@@ -525,11 +537,18 @@ preloaderText.innerText = 'Setting the Stage'
   }
 
   // Media Platforms
+  const prerecordedVideo = document.createElement('video');
+  const videoController = new VideoController(prerecordedVideo)
+  videoController.schedule(new Date(2022, 2, 31, 2, 30), "a")
+  videoController.schedule(new Date(2022, 3, 31, 2, 35), "b")
+  videoController.schedule(new Date(2022, 3, 31, 2, 40), "c")
+  videoController.schedule(new Date(2022, 3, 31, 2, 45), "d")
+  videoController.schedule(new Date(2022, 3, 31, 2, 50), "e")
   const mediPlatforms: MediaPlatform[] = [];
   const mediaPlatformBase = showcasePlatform.clone();
-  const kochikameVideo = document.createElement('video');
-  kochikameVideo.src = 'res/media/Ryotsu the detective Part 1.mp4';
-  const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, kochikameVideo)
+  prerecordedVideo.src = videoController.getScheduledVideo();
+  console.log(`currvid= ${ videoController.getScheduledVideo()}`)
+  const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, prerecordedVideo)
   mediPlatforms.push(mediaPlatform);
   mediaPlatform._model.translateZ(15);
   mediaPlatform._model.translateX(-5);
@@ -753,7 +772,7 @@ preloaderText.innerText = 'Setting the Stage'
         PLAYER.model.position.copy(oldPlayerPosition);
       }
     }
-    hud.location.innerText = `${PLAYER.model.position.x}, ${PLAYER.model.position.y}, ${PLAYER.model.position.z}`
+    hud.location.innerText = `(${PLAYER.model.position.x.toFixed(2)}, ${PLAYER.model.position.y.toFixed(2)}, ${PLAYER.model.position.z.toFixed(2)})`
     propsUpdate();
     gameUpdate();
   }
