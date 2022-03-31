@@ -216,25 +216,12 @@ if (window.devicePixelRatio <= 1) {
 const groundPlane = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(400, 400, 1, 1),
   new THREE.MeshStandardMaterial({
-    // map: grassTexture,
-    // normalMap: grassNormal,
-    color: 0x0f0f0f,
+    map: grassTexture,
     normalMap: grassNormal,
     transparent: true,
-    opacity: 0.85
+    opacity: 1.0
   })
 )
-const groundMirror = new Reflector(
-  new THREE.PlaneBufferGeometry(400, 400, 1, 1),
-  {
-    clipBias: 0.01,
-    textureWidth: window.innerWidth,
-    textureHeight: window.innerHeight
-  }
-)
-groundMirror.rotateX(-Math.PI/2)
-scene.add(groundMirror);
-groundMirror.position.y -= 0.1;
 groundPlane.rotateX(-Math.PI / 2);
 scene.add(groundPlane);
 
