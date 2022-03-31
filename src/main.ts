@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -213,15 +213,25 @@ if (window.devicePixelRatio <= 1) {
 }
 
 // Adding a ground
+const groundGeometry = new THREE.PlaneBufferGeometry(400, 400, 1, 1)
 const groundPlane = new THREE.Mesh(
-  new THREE.PlaneBufferGeometry(400, 400, 1, 1),
+  groundGeometry,
   new THREE.MeshStandardMaterial({
     map: grassTexture,
     normalMap: grassNormal,
     transparent: true,
-    opacity: 1.0
+    opacity: 0.85
   })
 )
+const groundMirror = new Reflector(
+  groundGeometry,
+  {
+    clipBias: 0.01
+  }
+)
+scene.add(groundMirror)
+groundMirror.rotateX(-Math.PI / 2);
+groundMirror.position.y -= 0.01;
 groundPlane.rotateX(-Math.PI / 2);
 scene.add(groundPlane);
 
@@ -249,6 +259,7 @@ const entrancePanelBannerGeometry = new THREE.PlaneBufferGeometry(8, 3, 1, 1)
 const entrancePanelBannerTexture = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/logo-black.jpg`)
 const renderTarget = new THREE.WebGLCubeRenderTarget(256)
 const entranceReflectionCamera = new THREE.CubeCamera(0.1, 1000, renderTarget)
+entranceReflectionCamera.rotateZ(Math.PI/2);
 const entrancePanelBanner = new THREE.Mesh(
   entrancePanelBannerGeometry,
   new THREE.MeshStandardMaterial({
@@ -759,6 +770,7 @@ preloaderText.innerText = 'Setting the Stage'
       }
     }
     hud.location.innerText = `(${PLAYER.model.position.x.toFixed(2)}, ${PLAYER.model.position.y.toFixed(2)}, ${PLAYER.model.position.z.toFixed(2)})`
+    console.log(renderer.info)
     propsUpdate();
     gameUpdate();
   }
