@@ -747,7 +747,6 @@ preloaderText.innerText = 'Setting the Stage'
 
   function propsUpdate() {
     sphereInstances.rotateY((2 * Math.PI / 2400));
-    entranceReflectionCamera.update(renderer, scene);
   }
 
   function update() {
@@ -780,5 +779,6 @@ preloaderText.innerText = 'Setting the Stage'
   PLAYER.model.position.set(0, 0, -78)
   PLAYER.model.rotateY(Math.PI)
   preloader.style.display = "none";
+  entranceReflectionCamera.update(renderer, scene);
 
   animate();
