@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { Player } from './player';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader';
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -46,16 +45,18 @@ const hud = {
   },
 }
 
+const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+
 const mousePointer = new THREE.Vector2();
 
 const textureLoader = new THREE.TextureLoader();
-const grassTexture = textureLoader.load(grassTextureURL)
+const grassTexture = textureLoader.load(`${filesRoot}${grassTextureURL}`)
 grassTexture.wrapS = THREE.MirroredRepeatWrapping;
 grassTexture.wrapT = THREE.MirroredRepeatWrapping;
 grassTexture.repeat.set(64, 64);
 
 grassTexture.repeat.set(64, 64);
-const grassNormal = textureLoader.load(grassNormalURL);
+const grassNormal = textureLoader.load(`${filesRoot}${grassNormalURL}`);
 grassNormal.wrapS = THREE.MirroredRepeatWrapping;
 grassNormal.wrapT = THREE.MirroredRepeatWrapping;
 grassNormal.repeat.set(64, 64);
@@ -137,10 +138,10 @@ scene.add(PLAYER.model);
 scene.background = new THREE.Color(0x87ceeb);
 scene.fog = new THREE.FogExp2(0x87ceeb, 0.02);
 
-const marbleTexture = await textureLoader.loadAsync('res/textures/marble/Marble021_1K_Color.jpg');
+const marbleTexture = await textureLoader.loadAsync(`${filesRoot}res/textures/marble/Marble021_1K_Color.jpg`);
   marbleTexture.wrapS = marbleTexture.wrapT = THREE.MirroredRepeatWrapping;
   marbleTexture.repeat.set(1, 1);
-  const marbleRoughnessTexture = await textureLoader.loadAsync('res/textures/marble/Marble021_1K_Roughness.jpg');
+  const marbleRoughnessTexture = await textureLoader.loadAsync(`${filesRoot}res/textures/marble/Marble021_1K_Roughness.jpg`);
 
   const whiteMarbleMaterial = new THREE.MeshStandardMaterial({
     map: marbleTexture,
@@ -230,19 +231,26 @@ const entrancePanelBase = new THREE.Mesh(
 )
 
 const entrancePanelBannerGeometry = new THREE.PlaneBufferGeometry(8, 3, 1, 1)
-const entrancePanelBannerTexture = await textureLoader.loadAsync('res/backgrounds/logo-black.jpg')
+const entrancePanelBannerTexture = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/logo-black.jpg`)
+const renderTarget = new THREE.WebGLCubeRenderTarget(256)
+const entranceReflectionCamera = new THREE.CubeCamera(0.1, 1000, renderTarget)
 const entrancePanelBanner = new THREE.Mesh(
   entrancePanelBannerGeometry,
-  new THREE.MeshBasicMaterial(
-    {
+  new THREE.MeshStandardMaterial({
       map: entrancePanelBannerTexture,
+      bumpMap: entrancePanelBannerTexture,
+      bumpScale: 0.1,
       side: THREE.DoubleSide,
       transparent: true,
-      color: 'white'
-    }
+      color: 'gold',
+      metalness: 0.8,
+      metalnessMap: entrancePanelBannerTexture,
+      envMap: renderTarget.texture,
+      roughness: 0.2,
+    })
   )
-)
-
+entrancePanelBanner.add(entranceReflectionCamera)
+entranceReflectionCamera.rotateY(Math.PI)
 entrancePanel.add(entrancePanelBanner)
 entrancePanelBanner.rotateY(Math.PI)
 entrancePanelBanner.position.y += 1.8
@@ -304,10 +312,10 @@ entrancePanel.position.set(-1,0,-70)
   ]
   let ads: Advert[] = []
   let adZ = -15;
-  const adPanel = await gltfLoader.loadAsync('res/models/misc/Spons Panel.glb');
+  const adPanel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/Spons Panel.glb`);
   adPanel.scene.scale.setScalar(0.001);
   for (let adv of adURLs) {
-    const adTexture = await textureLoader.loadAsync(`${adBasePath}${adv.path}`);
+    const adTexture = await textureLoader.loadAsync(`${filesRoot}${adBasePath}${adv.path}`);
     const ad = new Advert(adv.firm, adv.message, adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
     ads.push(ad)
     scene.add(ad._model)
@@ -323,7 +331,7 @@ entrancePanel.position.set(-1,0,-70)
 
   // Artwork
   let interactions: Artwork[] = []
-  const artworkPanel = await fbxLoader.loadAsync('res/models/misc/Display Panels.fbx');
+  const artworkPanel = await fbxLoader.loadAsync(`${filesRoot}res/models/misc/Display Panels.fbx`);
   artworkPanel.scale.setScalar(0.001);
   const artowrkTexture = grassNormal;
   const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
@@ -337,17 +345,17 @@ entrancePanel.position.set(-1,0,-70)
     {
       name: 'instagram',
       url: 'https://www.instagram.com/?hl=en',
-      texture: await textureLoader.loadAsync('res/backgrounds/INSTA.jpg')
+      texture: await textureLoader.loadAsync(`${filesRoot}res/backgrounds/INSTA.jpg`)
     },
     {
       name: 'facebook',
       url: 'https://www.facebook.com/',
-      texture: await textureLoader.loadAsync('res/backgrounds/FB.jpg')
+      texture: await textureLoader.loadAsync(`res/backgrounds/FB.jpg`)
     },
     {
       name: 'youtube',
       url: 'https://www.youtube.com/',
-      texture: await textureLoader.loadAsync('res/backgrounds/YOUTUBE.jpg')
+      texture: await textureLoader.loadAsync(`res/backgrounds/YOUTUBE.jpg`)
     }
   ]
   let redirectionPlatforms: Artwork[] = [];
@@ -366,12 +374,12 @@ entrancePanel.position.set(-1,0,-70)
     {
       name: 'Shutterbug',
       url: 'https://www.google.com',
-      texture: await textureLoader.loadAsync('res/backgrounds/shutterbug.jpg')
+      texture: await textureLoader.loadAsync(`${filesRoot}res/backgrounds/shutterbug.jpg`)
     },
     {
       name: 'Art Conoscenza',
       url: 'https://www.google.com',
-      texture: await textureLoader.loadAsync('res/backgrounds/art-cono.jpg')
+      texture: await textureLoader.loadAsync(`res/backgrounds/art-cono.jpg`)
     }
   ]
   let epz = -55
@@ -406,7 +414,7 @@ entrancePanel.position.set(-1,0,-70)
   scene.add(sphereInstances);
 
   // Vegetation
-  const bushModel = await gltfLoader.loadAsync('res/models/props/bush.glb');
+  const bushModel = await gltfLoader.loadAsync(`${filesRoot}res/models/props/bush.glb`);
   const bush = bushModel.scene;
   bush.scale.setScalar(0.005);
 
@@ -436,7 +444,7 @@ entrancePanel.position.set(-1,0,-70)
 
   // Hobo
   const hobo = new THREE.Object3D()
-  const hoboModel = await gltfLoader.loadAsync('res/models/misc/Hobo.glb');
+  const hoboModel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/Hobo.glb`);
 
   hoboModel.scene.traverse(c => {
     if (c instanceof THREE.Mesh) {
@@ -453,7 +461,7 @@ entrancePanel.position.set(-1,0,-70)
   hobo.position.set(0, 0, -20);
   const sound = new THREE.PositionalAudio(PLAYER.audioListener);
   const audioLoader = new THREE.AudioLoader()
-  let buffer = await audioLoader.loadAsync('res/audio/Aarohi final song.mp3');
+  let buffer = await audioLoader.loadAsync(`${filesRoot}res/audio/Aarohi final song.mp3`);
   sound.setBuffer(buffer);
   hobo.add(sound);
   sound.play();
@@ -464,7 +472,7 @@ entrancePanel.position.set(-1,0,-70)
 
 
   // Dome
-  const domeModel = await gltfLoader.loadAsync('res/models/misc/Dome 2.glb')
+  const domeModel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/Dome 2.glb`)
   const dome = domeModel.scene;
   dome.scale.setScalar(1.5)
   dome.position.y -= 0.5;
@@ -472,7 +480,7 @@ entrancePanel.position.set(-1,0,-70)
   preloaderText.innerText = 'Structuring The World'
 
 //oat 
-const oatModel = await gltfLoader.loadAsync('res/models/misc/OAT.glb')
+const oatModel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/OAT.glb`)
 const oatContainer = new THREE.Object3D();
 const oat = oatModel.scene;
 oatContainer.add(oat)
@@ -520,7 +528,7 @@ preloaderText.innerText = 'Setting the Stage'
   preloaderText.innerText = 'Loading Stellar Performances'
 
   // Treasure Hunt
-  const treasureModel = await fbxLoader.loadAsync('res/models/decor/Chest_Gold.fbx');
+  const treasureModel = await fbxLoader.loadAsync(`${filesRoot}res/models/decor/Chest_Gold.fbx`);
   const treasure = treasureModel;
   treasure.scale.setScalar(0.01);
   treasure.traverse(t => {
@@ -718,6 +726,7 @@ preloaderText.innerText = 'Setting the Stage'
 
   function propsUpdate() {
     sphereInstances.rotateY((2 * Math.PI / 2400));
+    entranceReflectionCamera.update(renderer, scene);
   }
 
   function update() {
