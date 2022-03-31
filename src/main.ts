@@ -45,7 +45,7 @@ const hud = {
   },
 }
 
-const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/public/'
 
 const mousePointer = new THREE.Vector2();
 
