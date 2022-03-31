@@ -16,6 +16,7 @@ export class VideoController {
         while (s[0].getTime() < now.getTime()) {
             currVid = s[1]
             i = i + 1;
+            s = this._schedule[i];
         }
         return currVid;
     }
