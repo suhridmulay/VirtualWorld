@@ -9,6 +9,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
 
+import {Reflector} from 'three/examples/jsm/objects/Reflector';
+
 const grassTextureURL = 'res/textures/grass/Grass_01.png'
 const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
 
@@ -203,10 +205,25 @@ if (window.devicePixelRatio <= 1) {
 const groundPlane = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(400, 400, 1, 1),
   new THREE.MeshStandardMaterial({
-    map: grassTexture,
+    // map: grassTexture,
+    // normalMap: grassNormal,
+    color: 0x0f0f0f,
+    metalness: 0.8,
+    roughness: 0.2,
     normalMap: grassNormal,
+    transparent: true,
+    opacity: 0.95
   })
 )
+const groundMirror = new Reflector(
+  new THREE.PlaneBufferGeometry(400, 400, 1, 1),
+  {
+    clipBias: 0.01
+  }
+)
+groundMirror.rotateX(-Math.PI/2)
+scene.add(groundMirror);
+groundMirror.position.y -= 0.1;
 groundPlane.rotateX(-Math.PI / 2);
 scene.add(groundPlane);
 
@@ -239,18 +256,16 @@ const entrancePanelBanner = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
       map: entrancePanelBannerTexture,
       bumpMap: entrancePanelBannerTexture,
-      bumpScale: 0.1,
+      bumpScale: 0.2,
       side: THREE.DoubleSide,
       transparent: true,
-      color: 'gold',
+      color: 'white',
       metalness: 0.8,
-      metalnessMap: entrancePanelBannerTexture,
       envMap: renderTarget.texture,
       roughness: 0.2,
     })
   )
 entrancePanelBanner.add(entranceReflectionCamera)
-entranceReflectionCamera.rotateY(Math.PI)
 entrancePanel.add(entrancePanelBanner)
 entrancePanelBanner.rotateY(Math.PI)
 entrancePanelBanner.position.y += 1.8
