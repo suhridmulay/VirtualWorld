@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 const recordingsRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
@@ -436,6 +436,12 @@ entrancePanel.position.set(-1,0,-70)
     epz += 10;
   })
 
+  const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/Stand-up-2.jpg`)
+  const standupPlatform = new Artwork("StandUp Nite", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
+  standupPlatform._model.position.set(5, 0, 15);
+  standupPlatform._model.rotateY(Math.PI);
+  scene.add(standupPlatform._model)
+
   // Spheres
   const sphereGeometry = new THREE.SphereBufferGeometry(1, 8, 8);
   const sphereMaterial = new THREE.MeshBasicMaterial({
@@ -574,12 +580,12 @@ oat.traverse(c => {
   mediaPlatforms.push(mediaPlatform);
   mediaPlatform._model.translateZ(15);
   mediaPlatform._model.translateX(-5);
-  scene.add(mediaPlatform._model)
+  // scene.add(mediaPlatform._model)
 
 
   const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
   mediaPlatforms.push(liveVideoPlatform)
-  scene.add(liveVideoPlatform._model)
+  // scene.add(liveVideoPlatform._model)
   liveVideoPlatform._model.position.set(5, 0, 15);
   preloaderText.innerText = 'Loading Stellar Performances'
 

@@ -45,12 +45,12 @@ export class Advert {
         container.style.width = "100%";
         container.style.height = "100%";
         container.style.background = "#87CEEB" // `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`
+        container.style.overflow = "hidden";
         const img = document.createElement('img');
         const para = document.createElement('p');
         img.style.objectFit = "cover";
         img.style.maxWidth = "100%";
         img.style.height = "auto";
-        img.style.margin = "10% auto";
         img.src = this._image;
         para.innerText =`'Welcome to Aarohi'22 sponsored by ${this._firmname}`
         para.style.textAlign = "center";
