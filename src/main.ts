@@ -436,7 +436,7 @@ entrancePanel.position.set(-1,0,-70)
     epz += 10;
   })
 
-  const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/Stand-up-2.jpg`)
+  const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/piyush-sharma-fir-website.png`)
   const standupPlatform = new Artwork("StandUp Nite", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
   standupPlatform._model.position.set(5, 0, 15);
   standupPlatform._model.rotateY(Math.PI);
@@ -562,6 +562,17 @@ oatContainer.position.z += 60
 oatContainer.position.x += 30;
 scene.add(oatContainer)
 preloaderText.innerText = 'Setting the Stage'
+const oatPlane = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(16, 9),
+  new THREE.MeshBasicMaterial({
+    map: await textureLoader.loadAsync(`${filesRoot}res/backgrounds/OAT.png`),
+    side: THREE.DoubleSide
+  })
+)
+scene.add(oatPlane)
+oatPlane.rotateY(Math.PI);
+oatPlane.rotateY(Math.PI/4);
+oatPlane.position.set(20, 3, 50);
 
 oat.traverse(c => {
   if (c instanceof THREE.Mesh) {
@@ -589,6 +600,7 @@ oat.traverse(c => {
 
   // Media Platforms
   const prerecordedVideo = document.createElement('video');
+  prerecordedVideo.crossOrigin = "anonymous";
   const videoController = new VideoController(prerecordedVideo)
   videoController.schedule(new Date(2022, 2, 31, 2, 30), "a")
   videoController.schedule(new Date(2022, 2, 31, 2, 35), "b")
@@ -612,11 +624,12 @@ oat.traverse(c => {
   preloaderText.innerText = 'Loading Stellar Performances'
 
   const themeRevealVideo = document.createElement('video');
+  themeRevealVideo.loop = true;
   themeRevealVideo.crossOrigin = "anonymous"
   themeRevealVideo.src = `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`
   const themeRevealPlatform = new MediaPlatform('reveal', mediaPlatformBase, themeRevealVideo);
   scene.add(themeRevealPlatform._model);
-  themeRevealPlatform._model.translateZ(100);
+  themeRevealPlatform._model.translateZ(90);
   themeRevealPlatform._model.translateX(10);
   mediaPlatforms.push(themeRevealPlatform);
 
