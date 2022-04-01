@@ -49,7 +49,7 @@ const hud = {
 }
 
 const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
-const recordingsRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/'
+const recordingsRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -615,7 +615,7 @@ oat.traverse(c => {
     if (GameState.PlayerState == "FREEROAM") {
       treasureHuntManager.spawnTreasure(scene, treasure, coords);
       hud.modal.container.classList.add('appear-grow');
-      hud.modal.content.innerText = "A Treasure has spawned on the map, be the first to reveal it and send to @aarohiworld for a chance to win exciting prizes";
+      hud.modal.content.innerText = "A Treasure has spawned on the map, be the first to reveal it and send to @aarohi_vnitnagpur for a chance to win exciting prizes";
       GameState.PlayerState = "INTERACTING";
       GameState.interationTargetPosition.copy(PLAYER.model.position);
     }
