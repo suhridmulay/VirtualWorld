@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 const recordingsRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
@@ -362,12 +362,19 @@ entrancePanel.position.set(-1,0,-70)
   const artowrk = new Artwork("Timeline", "", timelineTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
   artowrk._generateInteraction = () => {
     const container = document.createElement('div');
+    container.style.height = "100%";
+    container.style.width = "100%";
     const img = document.createElement('img');
     img.src = `${filesRoot}/res/backgrounds/timeline-new.png`;
     img.style.maxWidth = "100%";
-    img.style.height = "auto";
     img.style.objectFit = "cover";
-    container.appendChild(img);
+    const imgContainer = document.createElement('div');
+    imgContainer.style.width = "100%";
+    imgContainer.style.height = "100%";
+    imgContainer.style.overflow = "scroll";
+    imgContainer.appendChild(img);
+    container.appendChild(imgContainer);
+
     container.style.overflow = "hidden";
     return container;
   }
