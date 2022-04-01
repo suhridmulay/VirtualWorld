@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -100,12 +100,11 @@ const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 130)]
 const entrancePanelCorners = [new THREE.Vector2(-6, -72.5), new THREE.Vector2(4, -67.5)]
 const oatEntrance = [new THREE.Vector2(8, 60), new THREE.Vector2(10, 80)]
-const oatCenter = new THREE.Vector2(10, 95);
+const oatCenter = new THREE.Vector2(9.4, 94.25);
 const oatInnerRadius = 17.79;
 const oatOuterRadius = 30.65;
 
 function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
-  console.log(inBetween(currentPlanePosition.distanceTo(oatCenter), oatInnerRadius, oatOuterRadius))
   return (
     (insideQuad(currentPlanePosition, validArea1Corners[0], validArea1Corners[1])
     || insideQuad(currentPlanePosition, validArea2Corners[0], validArea2Corners[1]))
@@ -113,6 +112,7 @@ function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
     && (
       !inBetween(currentPlanePosition.distanceTo(oatCenter), oatInnerRadius, oatOuterRadius) 
       || insideQuad(currentPlanePosition, oatEntrance[0], oatEntrance[1])
+      || currentPlanePosition.y > 94
     )
 
   )
@@ -538,26 +538,33 @@ preloaderText.innerText = 'Setting the Stage'
   const prerecordedVideo = document.createElement('video');
   const videoController = new VideoController(prerecordedVideo)
   videoController.schedule(new Date(2022, 2, 31, 2, 30), "a")
-  videoController.schedule(new Date(2022, 3, 31, 2, 35), "b")
-  videoController.schedule(new Date(2022, 3, 31, 2, 40), "c")
-  videoController.schedule(new Date(2022, 3, 31, 2, 45), "d")
+  videoController.schedule(new Date(2022, 2, 31, 2, 35), "b")
+  videoController.schedule(new Date(2022, 2, 31, 2, 40), "c")
+  videoController.schedule(new Date(2022, 2, 31, 2, 45), "d")
   videoController.schedule(new Date(2022, 3, 31, 2, 50), "e")
-  const mediPlatforms: MediaPlatform[] = [];
+  const mediaPlatforms: MediaPlatform[] = [];
   const mediaPlatformBase = showcasePlatform.clone();
   prerecordedVideo.src = videoController.getScheduledVideo();
-  console.log(`currvid= ${ videoController.getScheduledVideo()}`)
   const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, prerecordedVideo)
-  mediPlatforms.push(mediaPlatform);
+  mediaPlatforms.push(mediaPlatform);
   mediaPlatform._model.translateZ(15);
   mediaPlatform._model.translateX(-5);
   scene.add(mediaPlatform._model)
 
 
   const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
-  mediPlatforms.push(liveVideoPlatform)
+  mediaPlatforms.push(liveVideoPlatform)
   scene.add(liveVideoPlatform._model)
   liveVideoPlatform._model.position.set(5, 0, 15);
   preloaderText.innerText = 'Loading Stellar Performances'
+
+  const themeRevealVideo = document.createElement('video');
+  themeRevealVideo.src = 'http://3d-world.s3.ap-south-1.amazonaws.com/recordings/Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4'
+  const themeRevealPlatform = new MediaPlatform('reveal', mediaPlatformBase, themeRevealVideo);
+  scene.add(themeRevealPlatform._model);
+  themeRevealPlatform._model.translateZ(100);
+  themeRevealPlatform._model.translateX(10);
+  mediaPlatforms.push(themeRevealPlatform);
 
   // Treasure Hunt
   const treasureModel = await fbxLoader.loadAsync(`${filesRoot}res/models/decor/Chest_Gold.fbx`);
@@ -579,7 +586,6 @@ preloaderText.innerText = 'Setting the Stage'
       0,
       (R0 + offset) * Math.sin(theta)
     );
-    console.log(`spawning treasure`)
     if (GameState.PlayerState == "FREEROAM") {
       treasureHuntManager.spawnTreasure(scene, treasure, coords);
       hud.modal.container.classList.add('appear-grow');
@@ -589,7 +595,6 @@ preloaderText.innerText = 'Setting the Stage'
     }
   }
   const treasureSpawnTimeout = 1000 * 60 * (2 + Math.random());
-  console.log(`Treasure spawn in ${treasureSpawnTimeout / 1000}s`);
   setTimeout(treasureSpawn, treasureSpawnTimeout);
 
   preloaderText.innerText = 'Almost Done!'
@@ -615,6 +620,44 @@ preloaderText.innerText = 'Setting the Stage'
   walls.translateY(-80);
   scene.add(walls);
 
+  // WCL Adverts
+  const adGeometry = new THREE.PlaneBufferGeometry(6, 3);
+  const wclMaterial = new THREE.MeshBasicMaterial({
+    map: await textureLoader.loadAsync(`${filesRoot}${adBasePath}wcl.png`),
+    transparent: true
+  })
+  const wclInstances = new THREE.InstancedMesh(adGeometry, wclMaterial, 50);
+  for (let i = 0; i < 50; i++) {
+    transfromDummy.position.set(
+      -60,
+      5 + (i % 3) * 5,
+      20 + (i % 10) * 20
+    )
+    transfromDummy.rotation.y = (Math.PI/2)
+    transfromDummy.scale.setScalar(1.5)
+    transfromDummy.updateMatrix();
+    wclInstances.setMatrixAt(i, transfromDummy.matrix)
+  }
+
+  const dharampethMahilaBankMaterial = new THREE.MeshBasicMaterial({
+    map: await textureLoader.loadAsync(`${filesRoot}${adBasePath}mahila.png`),
+    transparent: true
+  })
+  const dmbInstances = new THREE.InstancedMesh(adGeometry, dharampethMahilaBankMaterial, 50);
+  for (let i = 0; i < 50; i++) {
+    transfromDummy.position.set(
+      -60,
+      5 + (i % 3) * 5,
+      (i % 10) * 10
+    )
+    transfromDummy.rotation.y = (Math.PI/2)
+    transfromDummy.scale.setScalar(1.5)
+    transfromDummy.updateMatrix();
+    dmbInstances.setMatrixAt(i, transfromDummy.matrix)
+  }
+  scene.add(dmbInstances)
+  scene.add(wclInstances);
+
   // Setup mouse interactions
   document.addEventListener('click', (e) => {
     mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -624,7 +667,7 @@ preloaderText.innerText = 'Setting the Stage'
     const intersects = raycaster.intersectObjects(scene.children, true);
     console.log(intersects);
 
-    if (intersects) {
+    if (intersects.length > 0) {
       if (intersects[0].object.name == "treasure") {
         const message = treasureHuntManager.findTreasure();
         hud.modal.container.classList.add('appear-grow');
@@ -667,7 +710,7 @@ preloaderText.innerText = 'Setting the Stage'
     })
 
     // Rotate interaction rings for media platforms
-    mediPlatforms.forEach(mp => {
+    mediaPlatforms.forEach(mp => {
       mp._controlRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
       mp._controlRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
     })
@@ -680,10 +723,9 @@ preloaderText.innerText = 'Setting the Stage'
       }
 
       let cp = new THREE.Vector3()
-      mediPlatforms.forEach(mp => {
+      mediaPlatforms.forEach(mp => {
         mp._controlRing.getWorldPosition(cp);
         if (cp.projectOnPlane(up).distanceTo(PLAYER.model.position) < 0.65) {
-          console.log(`Media Platform ${mp._mediaName}`)
           GameState.PlayerState = "INTERESTED";
           GameState.interationTargetPosition.copy(cp);
           activeMediaPlatform = mp;
@@ -763,14 +805,21 @@ preloaderText.innerText = 'Setting the Stage'
   function update() {
     if (GameState.PlayerState != "INTERACTING") {
       const oldPlayerPosition = PLAYER.model.position.clone()
+      const oldPlayerRotation = PLAYER.model.rotation.clone();
       PLAYER.update(worldClock.getDelta());
       const playerPlanePosition = new THREE.Vector2(PLAYER.model.position.x, PLAYER.model.position.z)
       if (!isPlayerPositionValid(playerPlanePosition)) {
         PLAYER.model.position.copy(oldPlayerPosition);
       }
+      const cameraWorldPosition = new THREE.Vector3();
+      PLAYER.camera.getWorldPosition(cameraWorldPosition);
+      const cameraPlanePosition = new THREE.Vector2(cameraWorldPosition.x, cameraWorldPosition.z)
+      if (!isPlayerPositionValid(cameraPlanePosition)) {
+        PLAYER.model.rotation.copy(oldPlayerRotation);
+      }
     }
+    
     hud.location.innerText = `(${PLAYER.model.position.x.toFixed(2)}, ${PLAYER.model.position.y.toFixed(2)}, ${PLAYER.model.position.z.toFixed(2)})`
-    console.log(renderer.info)
     propsUpdate();
     gameUpdate();
   }
