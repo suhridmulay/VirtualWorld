@@ -440,7 +440,28 @@ entrancePanel.position.set(-1,0,-70)
   const standupPlatform = new Artwork("StandUp Nite", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
   standupPlatform._model.position.set(5, 0, 15);
   standupPlatform._model.rotateY(Math.PI);
+  standupPlatform._generateInteraction = () => {
+    const container = document.createElement('div');
+    container.style.width = "100%";
+    container.style.height = "100%";
+    const formContainer = document.createElement('div');
+    formContainer.style.display = "flex";
+    formContainer.style.justifyContent = "center";
+    formContainer.style.width = "100%";
+    formContainer.style.height = "100%";
+    container.style.overflow = "hidden";
+    formContainer.style.overflow = "scroll"
+    const formFrame = document.createElement('iframe');
+    formFrame.width = "640px";
+    formFrame.height = "2500px"
+    const formEmbedLink = 'https://docs.google.com/forms/d/e/1FAIpQLScRLaQ9-gjq4Q_8H48_8a7Km-bHLBE1D1iti48rH56j0kI33Q/viewform?embedded=true';
+    formFrame.src = formEmbedLink;
+    formContainer.appendChild(formFrame)
+    container.appendChild(formContainer)
+    return container;
+  }
   scene.add(standupPlatform._model)
+  interactions.push(standupPlatform);
 
   // Spheres
   const sphereGeometry = new THREE.SphereBufferGeometry(1, 8, 8);
@@ -558,6 +579,7 @@ oat.traverse(c => {
   );
   showcase.add(showcasePlatform);
   const showcaseVideo = document.createElement('video');
+  showcaseVideo.crossOrigin = "anonymous";
   let videoSource = 'http://117.205.13.247/stream/stream.m3u8' //'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
   if (Hls.isSupported()) {
     let hls = new Hls();
