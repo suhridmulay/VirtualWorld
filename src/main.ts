@@ -48,8 +48,8 @@ const hud = {
   },
 }
 
-const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
-const recordingsRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/recordings/'
+const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const recordingsRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -821,7 +821,7 @@ oat.traverse(c => {
     
     hud.location.innerText = `(${PLAYER.model.position.x.toFixed(2)}, ${PLAYER.model.position.y.toFixed(2)}, ${PLAYER.model.position.z.toFixed(2)})`
     propsUpdate();
-    gameUpdate();
+    gameUpdate(worldClock.getDelta());
   }
 
   function animate() {
