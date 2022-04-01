@@ -18,7 +18,7 @@ export class VideoController {
             i = i + 1;
             s = this._schedule[i];
         }
-        return currVid;
+        return {time: s[0], src: currVid};
     }
 
     schedule(time: Date, videoSource: string) {
