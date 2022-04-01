@@ -83,7 +83,8 @@ export class Artwork {
         const banner = new THREE.Mesh(
             bannerGeometry,
             new THREE.MeshBasicMaterial({
-                map: adTexture
+                map: adTexture,
+                transparent: true,
             })
         )
         if (offset) {

@@ -53,7 +53,7 @@ export class TreasureHuntManager {
         // Create and write message Body
         context.fillStyle = "white";
         context.font = "15px sans-serif";
-        const text = `Congratulation!, you found the treasure at ${time.getMilliseconds()}th ms past the ${time.getSeconds()}th second of the ${time.getMinutes()}th minute of the ${time.getHours()}th hour. That is ${time.toUTCString()} in UTC. Send this to @aarohiworld on Instagram for a chance to win fabulous prizes.`
+        const text = `Congratulation!, you found the treasure at ${time.getMilliseconds()}th ms past the ${time.getSeconds()}th second of the ${time.getMinutes()}th minute of the ${time.getHours()}th hour. That is ${time.toUTCString()} in UTC. Send this to @aarohi_vnitnagpur on Instagram for a chance to win fabulous prizes.`
         const LINEMAX = canvas.width * 0.9;
         let lineNo = 5;
         let lineHeight = 15;

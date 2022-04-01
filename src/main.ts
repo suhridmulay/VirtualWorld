@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -340,7 +340,7 @@ entrancePanel.position.set(-1,0,-70)
   adPanel.scene.scale.setScalar(0.001);
   for (let adv of adURLs) {
     const adTexture = await textureLoader.loadAsync(`${filesRoot}${adBasePath}${adv.path}`);
-    const ad = new Advert(adv.firm, adv.message, adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01))
+    const ad = new Advert(adv.firm, adv.message, adTexture, adPanel.scene, new THREE.Vector3(1.375, 1.375, 0.01), `${filesRoot}${adBasePath}${adv.path}`)
     ads.push(ad)
     scene.add(ad._model)
     ad._model.rotateY(-Math.PI / 2)
@@ -356,9 +356,14 @@ entrancePanel.position.set(-1,0,-70)
   // Artwork
   let interactions: Artwork[] = []
   const artworkPanel = await fbxLoader.loadAsync(`${filesRoot}res/models/misc/Display Panels.fbx`);
+  const timelineTexture = await textureLoader.loadAsync('res/backgrounds/timeline-day-1.png');
   artworkPanel.scale.setScalar(0.001);
-  const artowrkTexture = grassNormal;
-  const artowrk = new Artwork("My Artwork", "My Canvas", artowrkTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
+  const artowrk = new Artwork("Timeline", "", timelineTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
+  artowrk._generateInteraction = () => {
+    const container = document.createElement('div');
+    container.innerText = 'Timeline';
+    return container;
+  }
   interactions.push(artowrk)
   scene.add(artowrk._model);
   artowrk._model.rotateY(Math.PI / 2);
@@ -368,17 +373,17 @@ entrancePanel.position.set(-1,0,-70)
   const platformData = [
     {
       name: 'instagram',
-      url: 'https://www.instagram.com/?hl=en',
+      url: 'https://www.instagram.com/aarohi_vnitnagpur/?hl=en',
       texture: await textureLoader.loadAsync(`${filesRoot}res/backgrounds/INSTA.jpg`)
     },
     {
       name: 'facebook',
-      url: 'https://www.facebook.com/',
+      url: 'https://www.facebook.com/AarohiWorld/',
       texture: await textureLoader.loadAsync(`res/backgrounds/FB.jpg`)
     },
     {
       name: 'youtube',
-      url: 'https://www.youtube.com/',
+      url: 'https://www.youtube.com/channel/UCcBmZqk4hUSbSiyQzGU20pg',
       texture: await textureLoader.loadAsync(`res/backgrounds/YOUTUBE.jpg`)
     }
   ]
@@ -397,12 +402,12 @@ entrancePanel.position.set(-1,0,-70)
   const eventPlatformData = [
     {
       name: 'Shutterbug',
-      url: 'https://www.google.com',
+      url: 'https://aarohiworld.org/exhibitions/shutterbug',
       texture: await textureLoader.loadAsync(`${filesRoot}res/backgrounds/shutterbug.jpg`)
     },
     {
       name: 'Art Conoscenza',
-      url: 'https://www.google.com',
+      url: 'https://aarohiworld.org/exhibitions/',
       texture: await textureLoader.loadAsync(`res/backgrounds/art-cono.jpg`)
     }
   ]
@@ -517,6 +522,12 @@ oatContainer.position.x += 30;
 scene.add(oatContainer)
 preloaderText.innerText = 'Setting the Stage'
 
+oat.traverse(c => {
+  if (c instanceof THREE.Mesh) {
+    (c.material as THREE.MeshBasicMaterial).color = new THREE.Color('lightgray');
+  }
+})
+
   // Showcase stage for sponsors or movies
   // Livestream jama lo bas, This thing is gold
   const showcase = new THREE.Object3D();
@@ -559,7 +570,7 @@ preloaderText.innerText = 'Setting the Stage'
   preloaderText.innerText = 'Loading Stellar Performances'
 
   const themeRevealVideo = document.createElement('video');
-  themeRevealVideo.src = 'http://3d-world.s3.ap-south-1.amazonaws.com/recordings/Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4'
+  themeRevealVideo.src = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4'
   const themeRevealPlatform = new MediaPlatform('reveal', mediaPlatformBase, themeRevealVideo);
   scene.add(themeRevealPlatform._model);
   themeRevealPlatform._model.translateZ(100);
@@ -626,12 +637,14 @@ preloaderText.innerText = 'Setting the Stage'
     map: await textureLoader.loadAsync(`${filesRoot}${adBasePath}wcl.png`),
     transparent: true
   })
-  const wclInstances = new THREE.InstancedMesh(adGeometry, wclMaterial, 50);
-  for (let i = 0; i < 50; i++) {
+  const wclInstances = new THREE.InstancedMesh(adGeometry, wclMaterial, 30);
+  for (let i = 0; i < 30; i++) {
+    let row = Math.floor(i / 10);
+    let col = i % 10
     transfromDummy.position.set(
       -60,
-      5 + (i % 3) * 5,
-      20 + (i % 10) * 20
+      5 + row * 5,
+      col * 20 + (row % 2) * 5 - 10
     )
     transfromDummy.rotation.y = (Math.PI/2)
     transfromDummy.scale.setScalar(1.5)
@@ -643,19 +656,21 @@ preloaderText.innerText = 'Setting the Stage'
     map: await textureLoader.loadAsync(`${filesRoot}${adBasePath}mahila.png`),
     transparent: true
   })
-  const dmbInstances = new THREE.InstancedMesh(adGeometry, dharampethMahilaBankMaterial, 50);
-  for (let i = 0; i < 50; i++) {
+  const dmbInstances = new THREE.InstancedMesh(adGeometry, dharampethMahilaBankMaterial, 30);
+  for (let i = 0; i < 30; i++) {
+    let row = Math.floor(i / 10);
+    let col = i % 10
     transfromDummy.position.set(
-      -60,
-      5 + (i % 3) * 5,
-      (i % 10) * 10
+      60,
+      5 + row * 5,
+      col * 20 + (row % 2) * 5
     )
-    transfromDummy.rotation.y = (Math.PI/2)
+    transfromDummy.rotation.y = (-Math.PI/2)
     transfromDummy.scale.setScalar(1.5)
     transfromDummy.updateMatrix();
     dmbInstances.setMatrixAt(i, transfromDummy.matrix)
   }
-  scene.add(dmbInstances)
+  scene.add(dmbInstances);
   scene.add(wclInstances);
 
   // Setup mouse interactions
@@ -767,7 +782,7 @@ preloaderText.innerText = 'Setting the Stage'
           PLAYER.motion.mousecapture = false;
           PLAYER.motion.mouseNormalX = PLAYER.motion.mouseNormalY = 0;
           hud.modal.container.classList.add('appear-grow');
-          hud.modal.content.innerText = `Welcome to Aarohi'22 sponsored by: ${ad._firmname}, they say: ${ad._message}`
+          hud.modal.content.appendChild(ad.createContent())
         }
       })
     }
