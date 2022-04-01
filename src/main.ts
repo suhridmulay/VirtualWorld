@@ -11,9 +11,6 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
 
 import {Reflector} from 'three/examples/jsm/objects/Reflector';
 
-const grassTextureURL = 'res/textures/grass/Grass_01.png'
-const grassNormalURL = 'res/textures/grass/Grass_01_Nrm.png'
-
 
 import { Advert } from './advert';
 import { Artwork } from './artowrk';
@@ -54,16 +51,6 @@ const recordingsRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 const mousePointer = new THREE.Vector2();
 
 const textureLoader = new THREE.TextureLoader();
-const grassTexture = textureLoader.load(`${filesRoot}${grassTextureURL}`)
-grassTexture.wrapS = THREE.MirroredRepeatWrapping;
-grassTexture.wrapT = THREE.MirroredRepeatWrapping;
-grassTexture.repeat.set(64, 64);
-
-grassTexture.repeat.set(64, 64);
-const grassNormal = textureLoader.load(`${filesRoot}${grassNormalURL}`);
-grassNormal.wrapS = THREE.MirroredRepeatWrapping;
-grassNormal.wrapT = THREE.MirroredRepeatWrapping;
-grassNormal.repeat.set(64, 64);
 
 preloaderText.innerText = 'Loading Ground Textures!'
 
@@ -218,10 +205,11 @@ const groundGeometry = new THREE.PlaneBufferGeometry(400, 400, 1, 1)
 const groundPlane = new THREE.Mesh(
   groundGeometry,
   new THREE.MeshStandardMaterial({
-    map: grassTexture,
-    normalMap: grassNormal,
+    // map: grassTexture,
+    // normalMap: grassNormal,
+    color: 0x0a0a0a,
     transparent: true,
-    opacity: 0.85
+    opacity: 0.89
   })
 )
 const groundMirror = new Reflector(
