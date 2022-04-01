@@ -642,12 +642,11 @@ oat.traverse(c => {
     let row = Math.floor(i / 10);
     let col = i % 10
     transfromDummy.position.set(
-      -60,
-      5 + row * 5,
-      col * 20 + (row % 2) * 5 - 10
+      ((i % 2) * 2 - 1) * 60,
+      1 + row * 2,
+      col * 4 + (row % 2) * 2 - 4
     )
-    transfromDummy.rotation.y = (Math.PI/2)
-    transfromDummy.scale.setScalar(1.5)
+    transfromDummy.rotation.y = (((i % 2) * 2 - 1) * -Math.PI/2)
     transfromDummy.updateMatrix();
     wclInstances.setMatrixAt(i, transfromDummy.matrix)
   }
@@ -661,12 +660,11 @@ oat.traverse(c => {
     let row = Math.floor(i / 10);
     let col = i % 10
     transfromDummy.position.set(
-      60,
-      5 + row * 5,
-      col * 20 + (row % 2) * 5
+      ((i % 2) * 2 - 1) * 60,
+      1 + row * 2,
+      col * 4 + (row % 2) * 2
     )
-    transfromDummy.rotation.y = (-Math.PI/2)
-    transfromDummy.scale.setScalar(1.5)
+    transfromDummy.rotation.y = (((i % 2) * 2 - 1) * -Math.PI/2)
     transfromDummy.updateMatrix();
     dmbInstances.setMatrixAt(i, transfromDummy.matrix)
   }
