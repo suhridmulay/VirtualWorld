@@ -856,7 +856,6 @@ function update() {
   if (GameState.PlayerState != "INTERACTING") {
     const oldPlayerPosition = PLAYER.model.position.clone()
     const oldPlayerRotation = PLAYER.model.rotation.clone();
-    const oldCameraPosition = PLAYER.camera.position.clone();
     PLAYER.update(worldClock.getDelta());
     const playerPlanePosition = new THREE.Vector2(PLAYER.model.position.x, PLAYER.model.position.z)
     if (!isPlayerPositionValid(playerPlanePosition)) {
