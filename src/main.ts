@@ -48,7 +48,7 @@ const hud = {
   },
 }
 
-const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const filesRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
 const recordingsRoot = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
@@ -710,6 +710,7 @@ oat.traverse(c => {
 
   let activeMediaPlatform: MediaPlatform | undefined = undefined;
   function gameUpdate(deltaT: number) {
+    deltaT;
 
     const up = new THREE.Vector3(0, 1, 0);
 

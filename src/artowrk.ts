@@ -4,7 +4,6 @@ const bannerGeometry = new THREE.PlaneBufferGeometry(4, 2, 1, 1);
 const textureLoader = new THREE.TextureLoader()
 const interactionCylinder = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 72)
 
-const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 36, 72)
 const interactionRingMatrial = new THREE.MeshBasicMaterial({
     map: await textureLoader.loadAsync('res/textures/pink-gradient.png'),
     transparent: true
