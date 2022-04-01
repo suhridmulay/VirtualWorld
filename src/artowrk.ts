@@ -1,10 +1,18 @@
 import * as THREE from 'three';
 
 const bannerGeometry = new THREE.PlaneBufferGeometry(4, 2, 1, 1);
+const textureLoader = new THREE.TextureLoader()
+const interactionCylinder = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 72)
 
 const interactionRingGeometry = new THREE.TorusBufferGeometry(0.5, 0.05, 36, 72)
 const interactionRingMatrial = new THREE.MeshBasicMaterial({
-    color: 'gold'
+    map: await textureLoader.loadAsync('res/textures/pink-gradient.png'),
+    transparent: true
+})
+const blankMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.0
 })
 
 export class Artwork {
@@ -45,10 +53,10 @@ export class Artwork {
         this.addBoard(textTexture);
         this.addPanel(panelModel)
         const interactionRing = new THREE.Mesh(
-            interactionRingGeometry,
-            interactionRingMatrial
+            interactionCylinder,
+            [interactionRingMatrial, blankMaterial, blankMaterial]
         )
-        interactionRing.rotateX(-Math.PI / 2)
+        // interactionRing.rotateX(-Math.PI / 2)
         interactionRing.position.set(3.0, 0.5, 2);
         this._interactionRing = interactionRing;
         this._model.add(interactionRing)

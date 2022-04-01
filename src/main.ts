@@ -49,6 +49,7 @@ const hud = {
 }
 
 const filesRoot = '' // 'https://d3hs3qv31vrl2x.cloudfront.net/public/'
+const recordingsRoot = 'https://d3hs3qv31vrl2x.cloudfront.net/recordings/'
 
 const mousePointer = new THREE.Vector2();
 
@@ -122,7 +123,7 @@ function isPlayerPositionValid(currentPlanePosition: THREE.Vector2): boolean {
 const composer = new EffectComposer(renderer);
 
 // Create a player object and setup the camera
-const PLAYER = new Player({ FOV: 60, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 1000 }, 'Forest');
+const PLAYER = new Player({ FOV: 70, aspect: window.innerWidth / window.innerHeight, near: 0.1, far: 1000 }, 'Forest');
 PLAYER.camera.position.set(0, 1, 0);
 
 preloaderText.innerText = 'Generated Player Object';
@@ -361,7 +362,13 @@ entrancePanel.position.set(-1,0,-70)
   const artowrk = new Artwork("Timeline", "", timelineTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
   artowrk._generateInteraction = () => {
     const container = document.createElement('div');
-    container.innerText = 'Timeline';
+    const img = document.createElement('img');
+    img.src = `${filesRoot}/res/backgrounds/timeline-new.png`;
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    img.style.objectFit = "cover";
+    container.appendChild(img);
+    container.style.overflow = "hidden";
     return container;
   }
   interactions.push(artowrk)
@@ -570,7 +577,8 @@ oat.traverse(c => {
   preloaderText.innerText = 'Loading Stellar Performances'
 
   const themeRevealVideo = document.createElement('video');
-  themeRevealVideo.src = 'http://d3hs3qv31vrl2x.cloudfront.net/recordings/Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4'
+  themeRevealVideo.crossOrigin = "anonymous"
+  themeRevealVideo.src = `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`
   const themeRevealPlatform = new MediaPlatform('reveal', mediaPlatformBase, themeRevealVideo);
   scene.add(themeRevealPlatform._model);
   themeRevealPlatform._model.translateZ(100);
@@ -694,33 +702,12 @@ oat.traverse(c => {
   })
 
   let activeMediaPlatform: MediaPlatform | undefined = undefined;
-  function gameUpdate() {
+  function gameUpdate(deltaT: number) {
 
     const up = new THREE.Vector3(0, 1, 0);
 
     // Rotate hobo model
     hobo.rotateY(2 * Math.PI / 240);
-
-    // Rotate interaction rings for ads
-
-    /*
-    ads.forEach(ad => {
-      ad._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
-      ad._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
-    })
-    */
-
-    // Redirection Stations
-    redirectionPlatforms.forEach(rp => {
-      rp._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
-      rp._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
-    })
-
-    // Rotate interaction rings for artworks
-    interactions.forEach(interaction => {
-      interaction._interactionRing.rotation.x = -Math.PI / 2 + 0.25 * Math.cos(worldClock.getElapsedTime() * 2)
-      interaction._interactionRing.rotation.y = 0.25 * Math.sin(worldClock.getElapsedTime() * 2)
-    })
 
     // Rotate interaction rings for media platforms
     mediaPlatforms.forEach(mp => {
