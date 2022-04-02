@@ -596,16 +596,23 @@ if (Hls.isSupported()) {
 const prerecordedVideo = document.createElement('video');
 prerecordedVideo.crossOrigin = "anonymous";
 const videoController = new VideoController(prerecordedVideo)
-videoController.schedule(new Date(2022, 3, 2, 7, 0), "res/media/Ryotsu The Magician.mp4")
-videoController._schedule.sort();
+videoController.schedule(new Date(2022, 3, 2, 9, 45), `${recordingsRoot}Swarmanzar22_Final.mp4`)
+videoController.schedule(new Date(2022, 3, 2, 13, 0), `${recordingsRoot}RD+FINALS+FINAL.mp4`)
+videoController.schedule(new Date(2022, 3, 2, 15, 45), `${recordingsRoot}Final+Touch.mp4`)
+videoController._schedule = [
+  [new Date(2022, 1, 1, 1, 1), `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`],
+  ...videoController._schedule
+]
+console.log(videoController._schedule);
 const mediaPlatforms: MediaPlatform[] = [];
 const mediaPlatformBase = showcasePlatform.clone();
 const scheduledVid = videoController.getScheduledVideo()
+console.log(scheduledVid);
 prerecordedVideo.src = scheduledVid.src;
-const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, prerecordedVideo)
+const mediaPlatform = new MediaPlatform('prerecorded', mediaPlatformBase, prerecordedVideo)
 mediaPlatforms.push(mediaPlatform);
-mediaPlatform._model.translateZ(15);
-mediaPlatform._model.translateX(-5);
+mediaPlatform._model.translateZ(90);
+mediaPlatform._model.translateX(10);
 scene.add(mediaPlatform._model)
 
 
@@ -620,10 +627,10 @@ themeRevealVideo.loop = true;
 themeRevealVideo.crossOrigin = "anonymous"
 themeRevealVideo.src = `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`
 const themeRevealPlatform = new MediaPlatform('reveal', mediaPlatformBase, themeRevealVideo);
-scene.add(themeRevealPlatform._model);
+// scene.add(themeRevealPlatform._model);
 themeRevealPlatform._model.translateZ(90);
 themeRevealPlatform._model.translateX(10);
-mediaPlatforms.push(themeRevealPlatform);
+// mediaPlatforms.push(themeRevealPlatform);
 
 // Treasure Hunt
 const treasureModel = await fbxLoader.loadAsync(`${filesRoot}res/models/decor/Chest_Gold.fbx`);
@@ -898,6 +905,14 @@ hud.modal.content.style.display = "flex";
 hud.modal.content.style.flexDirection = "column";
 hud.modal.content.style.alignItems = "center";
 hud.modal.content.style.justifyContent = "center";
+const hintcontainer = document.createElement('div');
+hintcontainer.style.backgroundColor = '#87CEEB';
+hintcontainer.style.width = "100%"
+hintcontainer.style.height = "100%"
+hintcontainer.style.display = "flex"; 
+hintcontainer.style.flexDirection = "column";
+hintcontainer.style.alignItems = "center";
+hintcontainer.style.justifyContent = "center";
 const hintParaOne = 'Welcome to the Aarohi Treasure Hunt! Follow the clues across Aarohi\'s social media platforms. Each clue will lead to a new one. Search through posters and captions for the clues, and answer the questions in our attached Google form as you uncover each clue. Here\'s your first clue:'
 const hintParaTwo = 'The first mention of "A Universal Symphony" (Hint: Find the boards that say Instagram and Facebook)'
 const hintParaThreee = 'PS: click the treasure to collect'
@@ -907,9 +922,10 @@ const p2 = document.createElement('p')
 p2.innerText = hintParaTwo;
 const p3 = document.createElement('p')
 p3.innerText = hintParaThreee;
-hud.modal.content.appendChild(p1)
-hud.modal.content.appendChild(p2)
-hud.modal.content.appendChild(p3)
+hintcontainer.appendChild(p1)
+hintcontainer.appendChild(p2)
+hintcontainer.appendChild(p3)
+hud.modal.content.appendChild(hintcontainer)
 GameState.PlayerState = "INTERACTING";
 PLAYER.model.position.set(0, 0, -78)
 PLAYER.model.rotateY(Math.PI)

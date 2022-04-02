@@ -21,12 +21,12 @@ export class VideoController {
             s = this._schedule[i];
         }
         console.log(prev)
-        return {time: prev[0], src: currVid};
+        return {time: prev[0], src: prev[1]};
     }
 
     schedule(time: Date, videoSource: string) {
         this._schedule.push([time, videoSource])
-        this._schedule = this._schedule.sort((s1, s2) => new Date(s1[0]).getTime() - new Date(s2[0]).getTime())
+        // this._schedule = this._schedule.sort((s1, s2) => new Date(s1[0]).getTime() - new Date(s2[0]).getTime())
     }
 
     play() {
