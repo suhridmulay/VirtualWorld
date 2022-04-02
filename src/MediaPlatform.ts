@@ -9,7 +9,7 @@ export class MediaPlatform {
     _model: THREE.Object3D;
     _mediaName: string;
     _texture: THREE.Texture | THREE.VideoTexture
-    
+
     _platformMesh: THREE.Object3D;
     _controlRing: THREE.Object3D;
     _screen: THREE.Object3D;
@@ -34,7 +34,7 @@ export class MediaPlatform {
             controlRingMaterial.clone()
         )
         this._controlRing.position.set(0, 0.5, -4.5);
-        this._controlRing.rotateX(-Math.PI/2);
+        this._controlRing.rotateX(-Math.PI / 2);
         this._screen.position.set(0, 2, 0);
         this._screen.rotateY(Math.PI);
         this._model.add(this._platformMesh)
@@ -51,12 +51,16 @@ export class MediaPlatform {
         if (this._video.paused || this._video.currentTime == 0) {
             console.log(`Playing ${this._video.src} with delta ${delta}`)
             this._video.load();
-            if (delta > 0 && delta < this._video.duration) {
-                this._video.currentTime = delta;
-            }
-            this._video.play();
-            ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
-            ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+            this._video.onloadedmetadata = (_) => {
+                console.log(this._video.duration);
+                if (delta > 0 && delta < this._video.duration) {
+                    console.log(`setting delta`)
+                    this._video.currentTime = delta;
+                }
+                this._video.play();
+                ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
+                ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+            };
         }
     }
 
