@@ -600,6 +600,7 @@ if (Hls.isSupported()) {
 
 // Media Platforms
 const prerecordedVideo = document.createElement('video');
+prerecordedVideo.loop = true;
 prerecordedVideo.crossOrigin = "anonymous";
 const videoController = new VideoController(prerecordedVideo)
 videoController.schedule(new Date(2022, 3, 2, 9, 45), `${recordingsRoot}Swarmanzar22_Final.mp4`)

@@ -63,7 +63,8 @@ export class MediaPlatform {
             this._video.load();
             this._video.onloadedmetadata = (_) => {
                 console.log(this._video.duration);
-                if (delta > 0 && delta < this._video.duration) {
+                delta = Math.floor(delta) % Math.floor(this._video.duration);
+                if (delta > 0) {
                     console.log(`setting delta`)
                     this._video.currentTime = delta;
                 }
