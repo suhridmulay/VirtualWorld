@@ -55,15 +55,16 @@ export class TreasureHuntManager {
         context.font = "15px sans-serif";
         const text = `Congratulation!, you found the treasure at ${time.getMilliseconds()}th ms past the ${time.getSeconds()}th second of the ${time.getMinutes()}th minute of the ${time.getHours()}th hour. That is ${time.toUTCString()} in UTC. Send this to @aarohi_vnitnagpur on Instagram for a chance to win fabulous prizes.`
         const LINEMAX = canvas.width * 0.9;
-        let lineNo = 5;
+        let lineNo = 15;
         let lineHeight = 15;
         let line = '';
+        const begin = canvas.width * 0.05;
         for (let word of text.split(' ')) {
             const testLine = line + word + ' ';
             const testLineSize = context.measureText(testLine);
             const testWidth = testLineSize.width;
             if (testWidth > LINEMAX) {
-                context.fillText(line, 0, lineNo * lineHeight)
+                context.fillText(line, begin, lineNo * lineHeight)
                 line = word + ' '
                 lineNo += 1;
             } else {
