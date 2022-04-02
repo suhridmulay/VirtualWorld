@@ -10,12 +10,10 @@ export class VideoController {
 
     getScheduledVideo() {
         const now = new Date()
-        let currVid = ''
         let i = 0;
         let s = this._schedule[i];
         let prev = s;
         while (i < this._schedule.length && s[0].getTime() < now.getTime()) {
-            currVid = s[1]
             i = i + 1;
             prev = s;
             s = this._schedule[i];
