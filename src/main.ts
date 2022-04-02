@@ -18,7 +18,7 @@ import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 import { VideoController } from './videoController';
-import * as URLs from './URLS.json';
+// import * as URLs from './URLS.json';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
