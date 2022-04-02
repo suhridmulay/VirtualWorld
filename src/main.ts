@@ -764,7 +764,7 @@ Promise.all(standeeMaterials).then(standeematerials => {
 
 // Lounge
 const streamLounge = new THREE.Object3D()
-const loungeLight = new THREE.PointLight(0xffbb73, 1.0, 2, 2);
+const loungeLight = new THREE.PointLight(0xffbb73, 1.0, 5, 2);
 loungeLight.position.set(0.5, 0.5, 0.5)
 loungeLight.castShadow = true;
 streamLounge.add(loungeLight);
@@ -935,6 +935,7 @@ function gameUpdate(deltaT: number) {
       container.style.justifyContent = "center";
       container.style.alignItems = "center";
       const livestreamFrame = document.createElement('iframe');
+      livestreamFrame.style.border = "none";
       livestreamFrame.src = "https://www.youtube.com/embed/-KrRh8fh8o8";
       livestreamFrame.width = "80%"
       livestreamFrame.height = "80%";
