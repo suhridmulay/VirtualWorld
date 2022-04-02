@@ -893,6 +893,24 @@ window.addEventListener('resize', () => {
 })
 
 // contentLoaded = true;
+hud.modal.container.classList.add('appear-grow');
+hud.modal.content.style.display = "flex";
+hud.modal.content.style.flexDirection = "column";
+hud.modal.content.style.alignItems = "center";
+hud.modal.content.style.justifyContent = "center";
+const hintParaOne = 'Welcome to the Aarohi Treasure Hunt! Follow the clues across Aarohi\'s social media platforms. Each clue will lead to a new one. Search through posters and captions for the clues, and answer the questions in our attached Google form as you uncover each clue. Here\'s your first clue:'
+const hintParaTwo = 'The first mention of "A Universal Symphony" (Hint: Find the boards that say Instagram and Facebook)'
+const hintParaThreee = 'PS: click the treasure to collect'
+const p1 = document.createElement('p')
+p1.innerText = hintParaOne;
+const p2 = document.createElement('p')
+p2.innerText = hintParaTwo;
+const p3 = document.createElement('p')
+p3.innerText = hintParaThreee;
+hud.modal.content.appendChild(p1)
+hud.modal.content.appendChild(p2)
+hud.modal.content.appendChild(p3)
+GameState.PlayerState = "INTERACTING";
 PLAYER.model.position.set(0, 0, -78)
 PLAYER.model.rotateY(Math.PI)
 preloader.style.display = "none";
