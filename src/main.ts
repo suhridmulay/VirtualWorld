@@ -87,7 +87,7 @@ function insideQuad(currentPosition: THREE.Vector2, point1: THREE.Vector2, point
 const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40)]
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 130)]
 const entrancePanelCorners = [new THREE.Vector2(-6, -72.5), new THREE.Vector2(4, -67.5)]
-const oatEntrance = [new THREE.Vector2(7, 59), new THREE.Vector2(9, 79)]
+const oatEntrance = [new THREE.Vector2(8, 60), new THREE.Vector2(10, 80)]
 const oatCenter = new THREE.Vector2(9.4, 94.25);
 const oatInnerRadius = 17.79;
 const oatOuterRadius = 30.65;
@@ -762,8 +762,12 @@ Promise.all(standeeMaterials).then(standeematerials => {
     })
 })
 
-
+// Lounge
 const streamLounge = new THREE.Object3D()
+const loungeLight = new THREE.PointLight(0xffbb73, 1.0, 2, 2);
+loungeLight.position.set(0.5, 0.5, 0.5)
+loungeLight.castShadow = true;
+streamLounge.add(loungeLight);
 const loungeSigntexture = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/LOUNGE.png`)
 loungeSigntexture.flipY = true
 const streamLoungeSign = new THREE.Mesh(
@@ -930,7 +934,11 @@ function gameUpdate(deltaT: number) {
       container.style.height = "100%";
       container.style.justifyContent = "center";
       container.style.alignItems = "center";
-      container.innerHTML = `<iframe width="710" height="399" src="https://www.youtube.com/embed/-KrRh8fh8o8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+      const livestreamFrame = document.createElement('iframe');
+      livestreamFrame.src = "https://www.youtube.com/embed/-KrRh8fh8o8";
+      livestreamFrame.width = "80%"
+      livestreamFrame.height = "80%";
+      container.appendChild(livestreamFrame)
       hud.modal.content.appendChild(container);
     }
   }
