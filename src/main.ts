@@ -735,7 +735,8 @@ const standeeGometry = new THREE.PlaneBufferGeometry(2, 4, 1, 1);
 const winnerStandeeBasePath = `${filesRoot}res/winners/`
 let winners = [
   'swar.jpg',
-  'rd.png'
+  'rd.png',
+  'dramatics.png'
 ]
 
 if ((new Date()).getTime() > (new Date(2022, 3, 2, 3, 45)).getTime()) {
@@ -936,7 +937,7 @@ function gameUpdate(deltaT: number) {
       container.style.alignItems = "center";
       const livestreamFrame = document.createElement('iframe');
       livestreamFrame.style.border = "none";
-      livestreamFrame.src = "https://www.youtube.com/embed/-KrRh8fh8o8";
+      livestreamFrame.src = "https://www.youtube.com/embed/q7L_mAeU2_A";
       livestreamFrame.width = "80%"
       livestreamFrame.height = "80%";
       container.appendChild(livestreamFrame)
