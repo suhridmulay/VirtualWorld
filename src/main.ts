@@ -18,7 +18,7 @@ import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 import { VideoController } from './videoController';
-// import * as URLs from './URLS.json';
+import * as URLs from './URLS.json';
 
 
 const playerModelUrl = 'res/models/avatar/source/eve.fbx';
@@ -321,10 +321,15 @@ const adURLs = [
     path: 'wcl.png',
     firm: 'WCL',
     message: 'WCL'
+  },
+  {
+    path: 'ies-master.jpeg',
+    firm: 'ies-master',
+    message: 'ies'
   }
 ]
 let ads: Advert[] = []
-let adZ = -15;
+let adZ = -20;
 const adPanel = await gltfLoader.loadAsync(`${filesRoot}res/models/misc/Spons Panel.glb`);
 adPanel.scene.scale.setScalar(0.001);
 for (let adv of adURLs) {
@@ -339,6 +344,20 @@ for (let adv of adURLs) {
     adZ
   )
   adZ += 5;
+}
+ads[ads.length - 1].createContent = () => {
+  const container = document.createElement('div');
+  container.style.width = "100%";
+  container.style.height = "100%";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
+  const iframe = document.createElement('iframe');
+  iframe.style.width = "80%";
+  iframe.style.height = "80%";
+  iframe.src = "https://www.youtube.com/embed/l7OGZjqra_Q";
+  container.appendChild(iframe);
+  return container;
 }
 preloaderText.innerText = 'To our gracious sponsors'
 
@@ -424,34 +443,21 @@ eventPlatformData.forEach(epd => {
   epz += 10;
 })
 
-const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/piyush-sharma-fir-website.png`)
-const standupPlatform = new Artwork("StandUp Nite", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
+const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/arati-2.1.png`)
+const standupPlatform = new Artwork("Aarti Kadav", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
 standupPlatform._model.position.set(5, 0, 15);
 standupPlatform._model.rotateY(Math.PI);
 standupPlatform._generateInteraction = () => {
   const container = document.createElement('div');
-  container.style.width = "100%";
-  container.style.height = "100%";
-  const formContainer = document.createElement('div');
-  formContainer.style.display = "flex";
-  formContainer.style.justifyContent = "center";
-  formContainer.style.width = "100%";
-  formContainer.style.height = "100%";
-  container.style.overflow = "hidden";
-  formContainer.style.overflow = "scroll"
-  if ((new Date()).getHours() >= 20) {
-    const message = document.createElement('p');
-    message.innerText = 'Better Luck Next Time!'
-    formContainer.appendChild(message)
-  } else {
-    const formFrame = document.createElement('iframe');
-    formFrame.width = "640px";
-    formFrame.height = "2500px"
-    const formEmbedLink = 'https://docs.google.com/forms/d/e/1FAIpQLScRLaQ9-gjq4Q_8H48_8a7Km-bHLBE1D1iti48rH56j0kI33Q/viewform?embedded=true';
-    formFrame.src = formEmbedLink;
-    formContainer.appendChild(formFrame)
-  }
-  container.appendChild(formContainer)
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.justifyContent = "center";
+  container.style.alignItems = "center";
+  const para = document.createElement('p');
+  para.style.margin = "5%"
+  para.innerText = `Presenting a talk show by Arati Kadav, the filmmaker who is redefining Indian cinema with her whimsical outlook and starkly realistic filmography.`
+  container.appendChild(para);
+  window.open(`https://vnit.webex.com/vnit/j.php?MTID=m6b4d645141ac6179a808627b7805f4be`, '_blank');
   return container;
 }
 scene.add(standupPlatform._model)
@@ -585,7 +591,7 @@ const showcasePlatform = new THREE.Mesh(
 showcase.add(showcasePlatform);
 const showcaseVideo = document.createElement('video');
 showcaseVideo.crossOrigin = "anonymous";
-let videoSource = 'http://117.205.13.247/stream/stream.m3u8' //'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
+let videoSource = 'https://cph-msl.akamaized.net/hls/live/2000341/test/master.m3u8';
 if (Hls.isSupported()) {
   let hls = new Hls();
   hls.loadSource(videoSource);
@@ -617,7 +623,7 @@ scene.add(mediaPlatform._model)
 
 
 const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
-mediaPlatforms.push(liveVideoPlatform)
+// mediaPlatforms.push(liveVideoPlatform)
 // scene.add(liveVideoPlatform._model)
 liveVideoPlatform._model.position.set(5, 0, 15);
 preloaderText.innerText = 'Loading Stellar Performances'
@@ -734,6 +740,32 @@ scene.add(gformTreasure);
 gformTreasure.translateZ(-68);
 gformTreasure.translateY(0.3);
 
+const standeeGometry = new THREE.PlaneBufferGeometry(2, 4, 1, 1);
+const winnerStandeeBasePath = `${filesRoot}res/winners/`
+const winners = [
+  'swar.jpg'
+]
+let standeeMaterials:Promise<THREE.Texture>[] = []
+winners.forEach(w => {
+  standeeMaterials.push(textureLoader.loadAsync(`${winnerStandeeBasePath}${w}`))
+})
+Promise.all(standeeMaterials).then(standeematerials => {
+    standeematerials.forEach((sm, i, _) => {
+      const standee = new THREE.Mesh(
+        standeeGometry,
+        new THREE.MeshBasicMaterial({
+          map: sm,
+          side: THREE.DoubleSide
+        })
+      )
+      scene.add(standee);
+      standee.rotateY(Math.PI);
+      standee.rotateY(-Math.PI/4);
+      standee.position.set(2 * i, 2, 40 + i * 5)
+    })
+})
+
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -790,9 +822,16 @@ function gameUpdate(deltaT: number) {
         GameState.PlayerState = "INTERESTED";
         GameState.interationTargetPosition.copy(cp);
         activeMediaPlatform = mp;
-        const timeDelta = ((new Date()).getTime() - scheduledVid.time.getTime()) / 1000
+        let timeDelta = ((new Date()).getTime() - scheduledVid.time.getTime()) / 1000
         console.log(scheduledVid);
-        activeMediaPlatform.interactionStart(timeDelta);
+        if (activeMediaPlatform == liveVideoPlatform) {
+          console.log('lvp');
+          liveVideoPlatform._video.play();
+          liveVideoPlatform.interactionRingActivate();
+          timeDelta = 0;
+        } else {
+          activeMediaPlatform.interactionStart(timeDelta);
+        }
       }
     })
 
@@ -843,7 +882,12 @@ function gameUpdate(deltaT: number) {
     if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 3.0) {
       GameState.PlayerState = "FREEROAM"
       if (activeMediaPlatform) {
-        activeMediaPlatform.interactionPause();
+        if (activeMediaPlatform == liveVideoPlatform) {
+          activeMediaPlatform.interactionRingDeactivate();
+          activeMediaPlatform._video.pause();
+        } else {
+          activeMediaPlatform.interactionPause();
+        }
         activeMediaPlatform = undefined;
         GameState.interationTargetPosition = new THREE.Vector3();
       }
@@ -912,7 +956,7 @@ hintcontainer.style.height = "100%"
 hintcontainer.style.display = "flex"; 
 hintcontainer.style.flexDirection = "column";
 hintcontainer.style.alignItems = "center";
-hintcontainer.style.justifyContent = "center";
+hintcontainer.style.justifyContent = "space-around";
 const hintParaOne = 'Welcome to the Aarohi Treasure Hunt! Follow the clues across Aarohi\'s social media platforms. Each clue will lead to a new one. Search through posters and captions for the clues, and answer the questions in our attached Google form as you uncover each clue. Here\'s your first clue:'
 const hintParaTwo = 'The first mention of "A Universal Symphony" (Hint: Find the boards that say Instagram and Facebook)'
 const hintParaThreee = 'PS: click the treasure to collect'
@@ -921,7 +965,9 @@ p1.innerText = hintParaOne;
 const p2 = document.createElement('p')
 p2.innerText = hintParaTwo;
 const p3 = document.createElement('p')
-p3.innerText = hintParaThreee;
+const bold = document.createElement('b');
+bold.innerText = hintParaThreee.toUpperCase();
+p3.appendChild(bold);
 hintcontainer.appendChild(p1)
 hintcontainer.appendChild(p2)
 hintcontainer.appendChild(p3)

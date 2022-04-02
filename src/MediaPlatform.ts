@@ -42,6 +42,16 @@ export class MediaPlatform {
         this._model.add(this._controlRing);
     }
 
+    interactionRingActivate() {
+        ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
+        ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+    }
+
+    interactionRingDeactivate() {
+        ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('gold');
+        ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+    }
+
     setScreenOffset(offset: THREE.Vector3) {
         this._screen.position.copy(offset);
     }
@@ -58,8 +68,7 @@ export class MediaPlatform {
                     this._video.currentTime = delta;
                 }
                 this._video.play();
-                ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
-                ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+                this.interactionRingActivate()
             };
         }
     }
@@ -67,8 +76,7 @@ export class MediaPlatform {
     interactionPause() {
         if (!this._video.paused) {
             this._video.pause();
-            ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('gold');
-            ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;
+            this.interactionRingDeactivate();
         }
     }
 }
