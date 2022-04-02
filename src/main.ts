@@ -345,7 +345,7 @@ preloaderText.innerText = 'To our gracious sponsors'
 // Artwork
 let interactions: Artwork[] = []
 const artworkPanel = await fbxLoader.loadAsync(`${filesRoot}res/models/misc/Display Panels.fbx`);
-const timelineTexture = await textureLoader.loadAsync('res/backgrounds/piyush-piyush-website.png');
+const timelineTexture = await textureLoader.loadAsync('res/backgrounds/timeline-day-2.png');
 artworkPanel.scale.setScalar(0.001);
 const artowrk = new Artwork("Timeline", "", timelineTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artowrk._generateInteraction = () => {
