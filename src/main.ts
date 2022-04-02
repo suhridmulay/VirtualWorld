@@ -87,7 +87,7 @@ function insideQuad(currentPosition: THREE.Vector2, point1: THREE.Vector2, point
 const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40)]
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 130)]
 const entrancePanelCorners = [new THREE.Vector2(-6, -72.5), new THREE.Vector2(4, -67.5)]
-const oatEntrance = [new THREE.Vector2(8, 60), new THREE.Vector2(10, 80)]
+const oatEntrance = [new THREE.Vector2(7, 59), new THREE.Vector2(9, 79)]
 const oatCenter = new THREE.Vector2(9.4, 94.25);
 const oatInnerRadius = 17.79;
 const oatOuterRadius = 30.65;
@@ -160,6 +160,7 @@ PLAYER.setCameraPosition(new THREE.Vector3(0, 1.25, 2))
 const GameState = {
   PlayerState: "FREEROAM",
   interationTargetPosition: new THREE.Vector3(0, 0, 0),
+  inLounge: false,
 }
 
 hud.modal.closeButtom.addEventListener('click', (_) => {
@@ -224,17 +225,6 @@ groundMirror.position.y -= 0.01;
 groundPlane.rotateX(-Math.PI / 2);
 scene.add(groundPlane);
 
-// Create a skyball
-const skyball = new THREE.Mesh(
-  new THREE.SphereBufferGeometry(400, 40, 40),
-  new THREE.MeshBasicMaterial({
-    color: 0x87ceeb,
-    fog: true,
-    side: THREE.BackSide
-  })
-)
-skyball.name = "skyball";
-scene.add(skyball);
 
 // Loading logo and theme extrude
 const entrancePanel = new THREE.Object3D()
@@ -743,9 +733,15 @@ gformTreasure.translateY(0.3);
 
 const standeeGometry = new THREE.PlaneBufferGeometry(2, 4, 1, 1);
 const winnerStandeeBasePath = `${filesRoot}res/winners/`
-const winners = [
-  'swar.jpg'
+let winners = [
+  'swar.jpg',
+  'rd.png'
 ]
+
+if ((new Date()).getTime() > (new Date(2022, 3, 2, 3, 45)).getTime()) {
+  winners.push()
+}
+
 let standeeMaterials:Promise<THREE.Texture>[] = []
 winners.forEach(w => {
   standeeMaterials.push(textureLoader.loadAsync(`${winnerStandeeBasePath}${w}`))
@@ -762,10 +758,59 @@ Promise.all(standeeMaterials).then(standeematerials => {
       scene.add(standee);
       standee.rotateY(Math.PI);
       standee.rotateY(-Math.PI/4);
-      standee.position.set(2 * i, 2, 40 + i * 5)
+      standee.position.set(i * 1, 2, 40 + i * 3)
     })
 })
 
+
+const streamLounge = new THREE.Object3D()
+const loungeSigntexture = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/LOUNGE.png`)
+loungeSigntexture.flipY = true
+const streamLoungeSign = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(16, 9),
+  new THREE.MeshBasicMaterial({
+    map: loungeSigntexture,
+    side: THREE.DoubleSide
+  })
+)
+scene.add(streamLoungeSign);
+streamLoungeSign.rotateY(Math.PI);
+streamLoungeSign.position.set(-25, 4.5, 60)
+const sofas = [
+  fbxLoader.loadAsync(`${filesRoot}res/models/furniture/Couch_L.fbx`),
+  fbxLoader.loadAsync(`${filesRoot}res/models/furniture/Couch_Large1.fbx`),
+]
+Promise.all(sofas).then(sofas => {
+  sofas.forEach(sofa => sofa.scale.setScalar(0.005))
+  const brownSofa = sofas[0];
+  const greenSofa = sofas[1];
+  brownSofa.rotateY(Math.PI/2);
+  brownSofa.position.set(-3, 0, 2)
+  streamLounge.add(brownSofa);
+  streamLounge.add(greenSofa);
+})
+const streamLoungeBoundary = new THREE.Mesh(
+  new THREE.SphereBufferGeometry(4, 16, 32, 0, Math.PI),
+  whiteMarbleMaterial
+)
+streamLoungeBoundary.position.set(-2, 0, 2);
+streamLoungeBoundary.rotateY(-3 * Math.PI/4);
+streamLounge.add(streamLoungeBoundary)
+const streamLoungeRing = new THREE.Mesh(
+  new THREE.TorusBufferGeometry(5, 0.05, 16, 64),
+  new THREE.MeshBasicMaterial({
+    color: 'gold'
+  })
+)
+streamLoungeRing.rotateX(-Math.PI/2);
+streamLoungeRing.position.set(-2, 0.5, 2);
+streamLounge.add(streamLoungeRing);
+streamLounge.position.set(-35, 0, 45);
+const loungeRingWorldPosition = new THREE.Vector3()
+streamLoungeRing.getWorldPosition(loungeRingWorldPosition);
+console.log(loungeRingWorldPosition);
+streamLounge.rotateY(Math.PI/4);
+scene.add(streamLounge);
 
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
@@ -873,6 +918,21 @@ function gameUpdate(deltaT: number) {
         hud.modal.content.appendChild(ad.createContent())
       }
     })
+
+    if (PLAYER.model.position.distanceTo(loungeRingWorldPosition) < 5) {
+      GameState.PlayerState = "INTERACTING";
+      GameState.interationTargetPosition.copy(loungeRingWorldPosition);
+      GameState.inLounge = true;
+      hud.modal.container.classList.add("appear-grow");
+      const container = document.createElement('div');
+      container.style.display = "flex";
+      container.style.width = "100%";
+      container.style.height = "100%";
+      container.style.justifyContent = "center";
+      container.style.alignItems = "center";
+      container.innerHTML = `<iframe width="710" height="399" src="https://www.youtube.com/embed/-KrRh8fh8o8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+      hud.modal.content.appendChild(container);
+    }
   }
 
   if (GameState.PlayerState == "INTERESTED") {
@@ -880,7 +940,7 @@ function gameUpdate(deltaT: number) {
       sound.pause()
     }
 
-    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 3.0) {
+    if (PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 3.0 && !GameState.inLounge) {
       GameState.PlayerState = "FREEROAM"
       if (activeMediaPlatform) {
         if (activeMediaPlatform == liveVideoPlatform) {
@@ -892,6 +952,11 @@ function gameUpdate(deltaT: number) {
         activeMediaPlatform = undefined;
         GameState.interationTargetPosition = new THREE.Vector3();
       }
+    }
+
+    if (GameState.inLounge && PLAYER.model.position.distanceTo(GameState.interationTargetPosition) > 7.0) {
+      GameState.PlayerState = "FREEROAM";
+      GameState.interationTargetPosition = new THREE.Vector3();
     }
   }
 
