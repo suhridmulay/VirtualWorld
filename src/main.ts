@@ -736,7 +736,7 @@ const winnerStandeeBasePath = `${filesRoot}res/winners/`
 let winners = [
   'swar.jpg',
   'rd.png',
-  'dramatics.png'
+  'dramatics.jpg'
 ]
 
 if ((new Date()).getTime() > (new Date(2022, 3, 2, 3, 45)).getTime()) {
