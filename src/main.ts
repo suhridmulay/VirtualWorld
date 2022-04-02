@@ -434,7 +434,7 @@ eventPlatformData.forEach(epd => {
 })
 
 const pst = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/arati-2.1.png`)
-const standupPlatform = new Artwork("Aarti Kadav", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
+const standupPlatform = new Artwork("Arati Kadav", "Aarohi 2022", pst, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
 standupPlatform._model.position.set(5, 0, 15);
 standupPlatform._model.rotateY(Math.PI);
 standupPlatform._generateInteraction = () => {
@@ -445,9 +445,8 @@ standupPlatform._generateInteraction = () => {
   container.style.alignItems = "center";
   const para = document.createElement('p');
   para.style.margin = "5%"
-  para.innerText = `Presenting a talk show by Arati Kadav, the filmmaker who is redefining Indian cinema with her whimsical outlook and starkly realistic filmography.`
+  para.innerText = `Presenting a talk show by Arati Kadav, the filmmaker who is redefining Indian cinema with her whimsical outlook and starkly realistic filmography. Head over to livestream lounge to enjoy the show`
   container.appendChild(para);
-  window.open(`https://vnit.webex.com/vnit/j.php?MTID=m6b4d645141ac6179a808627b7805f4be`, '_blank');
   return container;
 }
 scene.add(standupPlatform._model)
