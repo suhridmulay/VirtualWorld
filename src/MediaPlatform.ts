@@ -46,9 +46,12 @@ export class MediaPlatform {
         this._screen.position.copy(offset);
     }
 
-    interactionStart() {
+    interactionStart(delta = 0) {
         console.log(`Current video paused: ${this._video.paused}`)
         if (this._video.paused || this._video.currentTime == 0) {
+            console.log(`Playing ${this._video.src} with delta ${delta}`)
+            this._video.load();
+            this._video.currentTime = delta;
             this._video.play();
             ((this._controlRing as THREE.Mesh).material as THREE.MeshBasicMaterial).color = new THREE.Color('limegreen');
             ((this._controlRing as THREE.Mesh).material as THREE.Material).needsUpdate = true;

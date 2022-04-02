@@ -13,18 +13,20 @@ export class VideoController {
         let currVid = ''
         let i = 0;
         let s = this._schedule[i];
-        while (s[0].getTime() < now.getTime()) {
+        let prev = s;
+        while (i < this._schedule.length && s[0].getTime() < now.getTime()) {
             currVid = s[1]
             i = i + 1;
+            prev = s;
             s = this._schedule[i];
         }
-        return {time: s[0], src: currVid};
+        console.log(prev)
+        return {time: prev[0], src: currVid};
     }
 
     schedule(time: Date, videoSource: string) {
         this._schedule.push([time, videoSource])
-        this._schedule.sort((s1, s2) => s1[0].getTime() - s2[0].getTime())
-        console.log(`Added video at ${time} from ${videoSource}`)
+        this._schedule = this._schedule.sort((s1, s2) => new Date(s1[0]).getTime() - new Date(s2[0]).getTime())
     }
 
     play() {

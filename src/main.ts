@@ -596,26 +596,17 @@ if (Hls.isSupported()) {
 const prerecordedVideo = document.createElement('video');
 prerecordedVideo.crossOrigin = "anonymous";
 const videoController = new VideoController(prerecordedVideo)
-videoController.schedule(new Date(2022, 3, 1, 6, 30), "res/media/tj.mp4")
-videoController.schedule(new Date(2022, 2, 31, 2, 35), "b")
-videoController.schedule(new Date(2022, 2, 31, 2, 40), "c")
-videoController.schedule(new Date(2022, 2, 31, 2, 45), "d")
-videoController.schedule(new Date(2022, 3, 31, 2, 50), "e")
+videoController.schedule(new Date(2022, 3, 2, 7, 0), "res/media/Ryotsu The Magician.mp4")
+videoController._schedule.sort();
 const mediaPlatforms: MediaPlatform[] = [];
 const mediaPlatformBase = showcasePlatform.clone();
 const scheduledVid = videoController.getScheduledVideo()
-console.log(scheduledVid)
 prerecordedVideo.src = scheduledVid.src;
-const delta = (new Date()).getTime() - scheduledVid.time.getTime()
-if (delta > 0 && delta < prerecordedVideo.duration) {
-  prerecordedVideo.currentTime = delta / 1000
-  console.log(delta / 1000)
-}
 const mediaPlatform = new MediaPlatform('kochikame', mediaPlatformBase, prerecordedVideo)
 mediaPlatforms.push(mediaPlatform);
 mediaPlatform._model.translateZ(15);
 mediaPlatform._model.translateX(-5);
-// scene.add(mediaPlatform._model)
+scene.add(mediaPlatform._model)
 
 
 const liveVideoPlatform = new MediaPlatform('lvp', mediaPlatformBase, showcaseVideo)
@@ -728,6 +719,14 @@ for (let i = 0; i < 30; i++) {
 scene.add(dmbInstances);
 scene.add(wclInstances);
 
+const gformTreasure = treasureModel.clone();
+gformTreasure.traverse(c => {
+  c.name = "gformTreasure"
+})
+scene.add(gformTreasure);
+gformTreasure.translateZ(-68);
+gformTreasure.translateY(0.3);
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -746,6 +745,11 @@ document.addEventListener('click', (e) => {
       GameState.interationTargetPosition.copy(PLAYER.model.position);
       scene.remove(treasure);
       setTimeout(treasureSpawn, 1000 * 60 * (10 + 2 * Math.random()));
+    }
+
+    if (intersects[0].object.name == "gformTreasure") {
+      window.open('https://forms.gle/hSx6aDTDMT88Qx2d6', '_blank')
+      scene.remove(gformTreasure);
     }
   }
 })
@@ -779,7 +783,9 @@ function gameUpdate(deltaT: number) {
         GameState.PlayerState = "INTERESTED";
         GameState.interationTargetPosition.copy(cp);
         activeMediaPlatform = mp;
-        activeMediaPlatform.interactionStart();
+        const timeDelta = ((new Date()).getTime() - scheduledVid.time.getTime()) / 1000
+        console.log(scheduledVid);
+        activeMediaPlatform.interactionStart(timeDelta);
       }
     })
 
