@@ -755,7 +755,7 @@ shutterbugResults.position.set(-14, 2, -62);
 shutterbugResults.rotateY(-Math.PI/4);
 scene.add(shutterbugResults);
 
-if ((new Date()).getTime() > (new Date(2022, 3, 3, 16, 30)).getTime()) {
+if ((new Date()).getTime() > (new Date(2022, 3, 3, 17, 15)).getTime()) {
   winners.push('ala.jpg')
 }
 
