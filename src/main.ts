@@ -740,8 +740,8 @@ let winners = [
   'dramatics.jpg'
 ]
 
-if ((new Date()).getTime() > (new Date(2022, 3, 2, 3, 45)).getTime()) {
-  winners.push()
+if ((new Date()).getTime() > (new Date(2022, 3, 3, 16, 30)).getTime()) {
+  winners.push('ala.jpg')
 }
 
 let standeeMaterials:Promise<THREE.Texture>[] = []
@@ -765,10 +765,14 @@ Promise.all(standeeMaterials).then(standeematerials => {
 })
 
 // Lounge
-const resp = await fetch('https://aarohiworld.org/home/api/livestream');
-const data = await resp.json();
-console.log(data);
-const streamURL = data['linked_in'] ? data['linked_in'] : "https://www.youtube.com/embed/-KrRh8fh8o8";
+let streamURL = "https://www.youtube.com/embed/-KrRh8fh8o8";
+try {
+  const resp = await fetch('https://aarohiworld.org/home/api/livestream');
+  const data = await resp.json();
+  streamURL = data['linked_in'] ? data['linked_in'] : "https://www.youtube.com/embed/-KrRh8fh8o8";
+} catch(err) {
+  console.log(err);
+}
 const streamLounge = new THREE.Object3D()
 const loungeLight = new THREE.PointLight(0xffbb73, 1.0, 5, 2);
 loungeLight.position.set(0.5, 0.5, 0.5)
