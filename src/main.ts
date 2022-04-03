@@ -87,7 +87,7 @@ function insideQuad(currentPosition: THREE.Vector2, point1: THREE.Vector2, point
 const validArea1Corners = [new THREE.Vector2(-20, -80), new THREE.Vector2(20, 40)]
 const validArea2Corners = [new THREE.Vector2(-60, -40), new THREE.Vector2(60, 130)]
 const entrancePanelCorners = [new THREE.Vector2(-6, -72.5), new THREE.Vector2(4, -67.5)]
-const oatEntrance = [new THREE.Vector2(8, 60), new THREE.Vector2(10, 80)]
+const oatEntrance = [new THREE.Vector2(7, 60), new THREE.Vector2(11, 80)]
 const oatCenter = new THREE.Vector2(9.4, 94.25);
 const oatInnerRadius = 17.79;
 const oatOuterRadius = 30.65;
@@ -354,7 +354,7 @@ preloaderText.innerText = 'To our gracious sponsors'
 // Artwork
 let interactions: Artwork[] = []
 const artworkPanel = await fbxLoader.loadAsync(`${filesRoot}res/models/misc/Display Panels.fbx`);
-const timelineTexture = await textureLoader.loadAsync('res/backgrounds/timeline-day-2.png');
+const timelineTexture = await textureLoader.loadAsync('res/backgrounds/timeline-day-3.png');
 artworkPanel.scale.setScalar(0.001);
 const artowrk = new Artwork("Timeline", "", timelineTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1));
 artowrk._generateInteraction = () => {
@@ -449,8 +449,8 @@ standupPlatform._generateInteraction = () => {
   container.appendChild(para);
   return container;
 }
-scene.add(standupPlatform._model)
-interactions.push(standupPlatform);
+//scene.add(standupPlatform._model)
+//interactions.push(standupPlatform);
 
 // Spheres
 const sphereGeometry = new THREE.SphereBufferGeometry(1, 8, 8);
@@ -523,7 +523,6 @@ const audioLoader = new THREE.AudioLoader()
 let buffer = await audioLoader.loadAsync(`${filesRoot}res/audio/Aarohi final song.mp3`);
 sound.setBuffer(buffer);
 hobo.add(sound);
-sound.play();
 sound.loop = true;
 sound.setVolume(4.0);
 
@@ -594,10 +593,13 @@ prerecordedVideo.crossOrigin = "anonymous";
 const videoController = new VideoController(prerecordedVideo)
 videoController.schedule(new Date(2022, 3, 2, 9, 45), `${recordingsRoot}Swarmanzar22_Final.mp4`)
 videoController.schedule(new Date(2022, 3, 2, 13, 0), `${recordingsRoot}RD+FINALS+FINAL.mp4`)
-videoController.schedule(new Date(2022, 3, 2, 15, 45), `${recordingsRoot}Final+Touch.mp4`)
+videoController.schedule(new Date(2022, 3, 2, 15, 45), `${recordingsRoot}Final+Touch.mp4`),
+videoController.schedule(new Date(2022, 3, 3, 8, 0), `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`)
+videoController.schedule(new Date(2022, 3, 3, 16, 30), `${recordingsRoot}ALA+DANSE+FINAL.mp4`)
 videoController._schedule = [
   [new Date(2022, 1, 1, 1, 1), `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`],
-  ...videoController._schedule
+  ...videoController._schedule,
+  [new Date(2022, 3, 3, 18, 30), `${recordingsRoot}Aarohi22++VNIT+Nagpur++Official+Theme+Release+Video_1080p.mp4`],
 ]
 console.log(videoController._schedule);
 const mediaPlatforms: MediaPlatform[] = [];
@@ -816,6 +818,25 @@ console.log(loungeRingWorldPosition);
 streamLounge.rotateY(Math.PI/4);
 scene.add(streamLounge);
 
+// Crossword
+const crosswordTexture = await textureLoader.loadAsync(`${filesRoot}res/backgrounds/crossword.png`)
+const crossWordArea = new Artwork('Crossword', 'Aarohi Crossword', crosswordTexture, artworkPanel, new THREE.Vector3(3.1875, 1.5, -1))
+scene.add(crossWordArea._model);
+crossWordArea._generateInteraction = () => {
+  const container = document.createElement('div');
+  container.style.height = "100%";
+  container.style.width = "100%";
+  container.style.display = "flex";
+  container.style.justifyContent = "center";
+  container.style.alignItems = "center";
+  container.innerHTML = `<iframe width="500" height="500" style="background-color:white; padding:5px 0px 0 5px; border:3px solid black; margin:auto; display:block" frameborder="0" src="https://crosswordlabs.com/embed/aarohi22-2"></iframe>`
+  return container;
+}
+crossWordArea._model.translateZ(10);
+crossWordArea._model.translateX(5);
+crossWordArea._model.rotateY(Math.PI);
+interactions.push(crossWordArea);
+
 // Setup mouse interactions
 document.addEventListener('click', (e) => {
   mousePointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -1019,6 +1040,7 @@ window.addEventListener('resize', () => {
 })
 
 // contentLoaded = true;
+sound.play();
 hud.modal.container.classList.add('appear-grow');
 hud.modal.content.style.display = "flex";
 hud.modal.content.style.flexDirection = "column";

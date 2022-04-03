@@ -47,7 +47,8 @@ export class Advert {
         container.style.background = "#87CEEB" // `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`
         container.style.display = "flex";
         container.style.flexDirection = "column";
-        container.style.overflow = "scroll";
+        container.style.overflowY = "scroll";
+        container.style.overflowX = "hidden";
         const img = document.createElement('img');
         const para = document.createElement('p');
         img.style.objectFit = "cover";
