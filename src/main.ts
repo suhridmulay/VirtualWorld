@@ -18,7 +18,6 @@ import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 import { VideoController } from './videoController';
-import { MeshBasicMaterial } from 'three';
 // import * as URLs from './URLS.json';
 
 
