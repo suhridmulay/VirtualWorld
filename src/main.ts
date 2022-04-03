@@ -765,6 +765,10 @@ Promise.all(standeeMaterials).then(standeematerials => {
 })
 
 // Lounge
+const resp = await fetch('https://aarohiworld.org/home/api/livestream');
+const data = await resp.json();
+console.log(data);
+const streamURL = data['linked_in'] ? data['linked_in'] : "https://www.youtube.com/embed/-KrRh8fh8o8";
 const streamLounge = new THREE.Object3D()
 const loungeLight = new THREE.PointLight(0xffbb73, 1.0, 5, 2);
 loungeLight.position.set(0.5, 0.5, 0.5)
@@ -957,7 +961,7 @@ function gameUpdate(deltaT: number) {
       container.style.alignItems = "center";
       const livestreamFrame = document.createElement('iframe');
       livestreamFrame.style.border = "none";
-      livestreamFrame.src = "https://www.youtube.com/embed/JfMNLfxztxA";
+      livestreamFrame.src = streamURL;
       livestreamFrame.width = "80%"
       livestreamFrame.height = "80%";
       container.appendChild(livestreamFrame)
