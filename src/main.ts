@@ -18,6 +18,7 @@ import Hls from 'hls.js';
 import { MediaPlatform } from './MediaPlatform';
 import { TreasureHuntManager } from './treasure';
 import { VideoController } from './videoController';
+import { MeshBasicMaterial } from 'three';
 // import * as URLs from './URLS.json';
 
 
@@ -737,8 +738,22 @@ const winnerStandeeBasePath = `${filesRoot}res/winners/`
 let winners = [
   'swar.jpg',
   'rd.png',
-  'dramatics.jpg'
+  'dramatics.jpg',
+  'cyno.jpg'
 ]
+
+const shutterbugResults = new THREE.Mesh(
+  standeeGometry,
+  new THREE.MeshBasicMaterial({
+    transparent: true,
+    map: await textureLoader.loadAsync(`${filesRoot}res/winners/shutterbug.jpg`),
+    side: THREE.DoubleSide,
+  })
+)
+shutterbugResults.rotateY(Math.PI);
+shutterbugResults.position.set(-14, 2, -62);
+shutterbugResults.rotateY(-Math.PI/4);
+scene.add(shutterbugResults);
 
 if ((new Date()).getTime() > (new Date(2022, 3, 3, 16, 30)).getTime()) {
   winners.push('ala.jpg')
