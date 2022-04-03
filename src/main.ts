@@ -957,7 +957,7 @@ function gameUpdate(deltaT: number) {
       container.style.alignItems = "center";
       const livestreamFrame = document.createElement('iframe');
       livestreamFrame.style.border = "none";
-      livestreamFrame.src = "https://www.youtube.com/embed/-KrRh8fh8o8";
+      livestreamFrame.src = "https://www.youtube.com/embed/JfMNLfxztxA";
       livestreamFrame.width = "80%"
       livestreamFrame.height = "80%";
       container.appendChild(livestreamFrame)
